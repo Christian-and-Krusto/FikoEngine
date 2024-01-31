@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 3.15)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
-set(ENABLE_OPT OFF CACHE BOOL "")
 
 set(PROJECT_NAME "FikoEngine")
 
@@ -11,6 +10,7 @@ project(${PROJECT_NAME})
 
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 message("C++ standard Version: ${CMAKE_CXX_STANDARD}")
+message("System Architecture: ${CMAKE_GENERATOR_PLATFORM}")
 
 message("${PROJECT_NAME}: Adding lwlog")
 add_subdirectory(vendor/lwlog)
@@ -38,7 +38,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_library(${PROJECT_NAME}Lib STATIC ${FikoEngine_SOURCE_FILES} ${FikoEngine_HEADER_FILES})
+add_library(${PROJECT_NAME}Lib STATIC ${FikoEngine_SOURCE_FILES} )
 
 set(LWLOG_INCLUDE_DIR "./vendor/lwlog/lwlog/src")
 set(${PROJECT_NAME}_INCLUDE_DIR "./${PROJECT_NAME}Lib/src")
@@ -49,6 +49,8 @@ set_target_properties(${PROJECT_NAME}Lib PROPERTIES LINKER_LANGUAGE CXX)
 add_library(${PROJECT_NAME}InterfaceLibrary INTERFACE)
 
 message("${PROJECT_NAME}: Linking libraries")
+
+target_precompile_headers (${PROJECT_NAME}Lib PUBLIC ${PROJECT_NAME}Lib/src/Core/${PROJECT_NAME}.pch.h)
 
 target_link_libraries(${PROJECT_NAME}InterfaceLibrary INTERFACE
         LWLOG
@@ -61,7 +63,7 @@ add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
 target_include_directories(Sandbox PRIVATE ${${PROJECT_NAME}_INCLUDE_DIR})
 target_link_libraries(Sandbox PRIVATE ${PROJECT_NAME}Lib)
 
-add_executable(${PROJECT_NAME}Editor ${FikoEngine_EDITOR_HEADER_FILES} ${FikoEngine_EDITOR_SOURCE_FILES})
+add_executable(${PROJECT_NAME}Editor ${FikoEngine_EDITOR_SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME}Editor PRIVATE ${FikoEngine_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME}Editor PRIVATE ${PROJECT_NAME}Lib)
@@ -69,5 +71,8 @@ target_link_libraries(${PROJECT_NAME}Editor PRIVATE ${PROJECT_NAME}Lib)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(${PROJECT_NAME}Lib PRIVATE -static-libstdc++ -Wall -pedantic)
     target_compile_options(${PROJECT_NAME}Editor PRIVATE -static-libstdc++ -Wall -pedantic)
-    target_compile_options(Sandbox PRIVATE -static-libstdc++ -Wall -pedantic)
+    target_compile_options(Sandbox PRIVATE -static-libstdc++ 
+    # -Wall
+    # -pedantic
+     )
 endif ()
