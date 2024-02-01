@@ -1,1 +1,1 @@
-# FikoEngine
+FikoEngine is a C++ 20 3D game engine that uses the Vulkan API along with many additional state-of-the-art libraries. It is developed using modern source code development techniques with an emphasis on quality and reliability. Since we currently have a tiny team, any help will be greatly appreciated.
