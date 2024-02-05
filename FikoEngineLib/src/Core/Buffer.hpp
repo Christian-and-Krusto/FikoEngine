@@ -1,112 +1,91 @@
 ﻿#pragma once
 
-using byte = uint8_t;
-class Buffer : public RefCounted
+/**
+ * @file
+ * @author Krusto Stoyanov ( k.stoianov2@gmail.com )
+ * @brief 
+ * @version 1.0
+ * @date 
+ * 
+ * @section LICENSE
+ * MIT License
+ * 
+ * Copyright (c) 2024 Christian and Krusto
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ * @section DESCRIPTION
+ * 
+ * Buffer class definition
+ */
+
+
+/***********************************************************************************************************************
+Includes
+***********************************************************************************************************************/
+#include <cassert>
+#include <cstdint>
+
+#include "Log.hpp"
+#include "Ref.hpp"
+
+/***********************************************************************************************************************
+Class definitions
+***********************************************************************************************************************/
+
+class Buffer: public RefCounted
 {
 public:
-	void* Data;
-	uint32_t Size;
+    Buffer();
 
-	Buffer()
-		: Data(nullptr), Size(0)
-	{
-	}
+    Buffer( uint8_t* data, uint32_t size );
 
-	Buffer(void* data, uint32_t size)
-		: Data(data), Size(size)
-	{
-	}
+    Buffer( const Buffer& other );
+    ~Buffer();
 
-    Buffer(const Buffer& other){
-        Data = other.Data;
-        Size = other.Size;
-    }
-    ~Buffer(){
-        LOG_INFO("Destroying buffer");
-        if(Data)
-            delete[] Data;
-    }
+public:
+    static Buffer Copy( const uint8_t* data, uint32_t size );
 
-	static Buffer Copy(const void* data, uint32_t size)
-	{
-		Buffer buffer;
-		buffer.Allocate(size);
-		memcpy(buffer.Data, data, size);
-		return buffer;
-	}
+    void Allocate( uint32_t size );
 
-	void Allocate(uint32_t size)
-	{
-        if(Data) {
-            delete[] Data;
-        }
-		Data = nullptr;
+    void Release();
 
-		if (size == 0)
-			return;
+    void ZeroInitialize();
 
-		Data = new byte[size];
-		Size = size;
-	}
+    uint8_t* ReadBytes( uint32_t size, uint32_t offset );
 
-	void Release()
-	{
-		delete[] Data;
-		Data = nullptr;
-		Size = 0;
-	}
+    void Write( uint8_t* data, uint32_t size, uint32_t offset = 0 );
 
-	void ZeroInitialize()
-	{
-		if (Data)
-			memset(Data, 0, Size);
-	}
+    uint32_t GetSize() const;
 
-	template<typename T>
-	T& Read(uint32_t offset = 0)
-	{
-		return *(T*)((byte*)Data + offset);
-	}
-    template<typename T>
-    T& Read(uint32_t offset = 0) const
-    {
-        return *(T*)((byte*)Data + offset);
-    }
+    template <typename T> T& Read( uint32_t offset = 0 );
+    template <typename T> T& Read( uint32_t offset = 0 ) const;
 
-	byte* ReadBytes(uint32_t size, uint32_t offset)
-	{
-		assert(offset + size <= Size);
-		byte* buffer = new byte[size];
-		memcpy(buffer, (byte*)Data + offset, size);
-		return buffer;
-	}
+    template <typename T> T* As();
 
-	void Write(void* data, uint32_t size, uint32_t offset = 0)
-	{
-		assert(offset + size <= Size);
-		memcpy((byte*)Data + offset, data, size);
-	}
+public:
+    operator bool() const;
 
-	operator bool() const
-	{
-		return Data;
-	}
+    uint8_t& operator[]( int index );
+    uint8_t operator[]( int index ) const;
 
-	byte& operator[](int index)
-	{
-		return ((byte*)Data)[index];
-	}
-
-	byte operator[](int index) const
-	{
-		return ((byte*)Data)[index];
-	}
-
-	template<typename T>
-	T* As()
-	{
-		return (T*)Data;
-	}
-
-	inline uint32_t GetSize() const { return Size; }
+public:
+    uint8_t* Data;
+    uint32_t Size;
 };

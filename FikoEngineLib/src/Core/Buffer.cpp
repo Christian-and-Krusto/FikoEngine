@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file
  * @author Krusto Stoyanov ( k.stoianov2@gmail.com )
  * @brief 
@@ -30,14 +30,14 @@
  * 
  * @section DESCRIPTION
  * 
- * Timestep class implementation
+ * Buffer class implementation
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "Timestep.hpp"
+#include "Buffer.hpp"
 
 /***********************************************************************************************************************
 Macro definitions
@@ -54,3 +54,81 @@ Static variables
 /***********************************************************************************************************************
 Static function Prototypes
 ***********************************************************************************************************************/
+
+/***********************************************************************************************************************
+Buffer Class Implementation
+***********************************************************************************************************************/
+
+
+Buffer::Buffer() : Data( nullptr ), Size( 0 ) {}
+
+Buffer::Buffer( uint8_t* data, uint32_t size ) : Data( data ), Size( size ) {}
+
+Buffer::Buffer( const Buffer& other )
+{
+    Data = other.Data;
+    Size = other.Size;
+}
+
+Buffer::~Buffer()
+{
+    if ( Data ) delete[] Data;
+}
+
+Buffer Buffer::Copy( const uint8_t* data, uint32_t size )
+{
+    Buffer buffer;
+    buffer.Allocate( size );
+    memcpy( buffer.Data, data, size );
+    return buffer;
+}
+
+void Buffer::Allocate( uint32_t size )
+{
+    if ( Data ) { delete[] Data; }
+    Data = nullptr;
+
+    if ( size == 0 ) return;
+
+    Data = new uint8_t[ size ];
+    Size = size;
+}
+
+void Buffer::Release()
+{
+    delete[] Data;
+    Data = nullptr;
+    Size = 0;
+}
+
+void Buffer::ZeroInitialize()
+{
+    if ( Data ) memset( Data, 0, Size );
+}
+
+template <typename T> T& Buffer::Read( uint32_t offset ) { return *( T* ) ( ( uint8_t* ) Data + offset ); }
+template <typename T> T& Buffer::Read( uint32_t offset ) const { return *( T* ) ( ( uint8_t* ) Data + offset ); }
+
+uint8_t* Buffer::ReadBytes( uint32_t size, uint32_t offset )
+{
+    assert( offset + size <= Size );
+    uint8_t* buffer = new uint8_t[ size ];
+    memcpy( buffer, ( uint8_t* ) Data + offset, size );
+    return buffer;
+}
+
+void Buffer::Write( uint8_t* data, uint32_t size, uint32_t offset )
+{
+    assert( offset + size <= Size );
+    memcpy( ( uint8_t* ) Data + offset, data, size );
+}
+
+Buffer::operator bool() const { return Data; }
+
+uint8_t& Buffer::operator[]( int index ) { return ( ( uint8_t* ) Data )[ index ]; }
+
+uint8_t Buffer::operator[]( int index ) const { return ( ( uint8_t* ) Data )[ index ]; }
+
+template <typename T> T* Buffer::As() { return ( T* ) Data; }
+
+inline uint32_t Buffer::GetSize() const { return Size; }
