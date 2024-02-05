@@ -65,6 +65,7 @@ namespace FikoEngine
 {
 
     Logger::Logger() { Init(); }
+
     Logger::~Logger() { Destroy(); }
 
     void Logger::Create() { Logger::s_Logger = std::make_shared<Logger>(); }
@@ -102,7 +103,9 @@ namespace FikoEngine
 
 #else
     void Logger::Init() {}
+
     void Logger::Destroy() {}
+
     Logger* Logger::GetInstance() { return s_Logger.get(); }
 #endif
 }// namespace FikoEngine

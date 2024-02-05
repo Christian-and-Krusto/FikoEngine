@@ -99,14 +99,16 @@ namespace FikoEngine
 namespace std
 {
 
-    template <> struct hash<FikoEngine::UUID> {
+    template <>
+    struct hash<FikoEngine::UUID> {
         std::size_t operator()( const FikoEngine::UUID& uuid ) const
         {
             return hash<uint64_t>()( ( uint64_t ) uuid.GetID() );
         }
     };
 
-    template <> struct hash<FikoEngine::UUID32> {
+    template <>
+    struct hash<FikoEngine::UUID32> {
         std::size_t operator()( const FikoEngine::UUID32& uuid ) const
         {
             return hash<uint32_t>()( ( uint32_t ) uuid.GetID() );

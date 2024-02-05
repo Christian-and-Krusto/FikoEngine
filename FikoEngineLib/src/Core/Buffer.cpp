@@ -106,8 +106,17 @@ void Buffer::ZeroInitialize()
     if ( Data ) memset( Data, 0, Size );
 }
 
-template <typename T> T& Buffer::Read( uint32_t offset ) { return *( T* ) ( ( uint8_t* ) Data + offset ); }
-template <typename T> T& Buffer::Read( uint32_t offset ) const { return *( T* ) ( ( uint8_t* ) Data + offset ); }
+template <typename T>
+T& Buffer::Read( uint32_t offset )
+{
+    return *( T* ) ( ( uint8_t* ) Data + offset );
+}
+
+template <typename T>
+T& Buffer::Read( uint32_t offset ) const
+{
+    return *( T* ) ( ( uint8_t* ) Data + offset );
+}
 
 uint8_t* Buffer::ReadBytes( uint32_t size, uint32_t offset )
 {
@@ -129,6 +138,10 @@ uint8_t& Buffer::operator[]( int index ) { return ( ( uint8_t* ) Data )[ index ]
 
 uint8_t Buffer::operator[]( int index ) const { return ( ( uint8_t* ) Data )[ index ]; }
 
-template <typename T> T* Buffer::As() { return ( T* ) Data; }
+template <typename T>
+T* Buffer::As()
+{
+    return ( T* ) Data;
+}
 
 inline uint32_t Buffer::GetSize() const { return Size; }

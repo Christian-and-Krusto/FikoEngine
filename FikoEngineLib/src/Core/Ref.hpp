@@ -30,20 +30,24 @@ namespace RefUtils
 
 inline static std::mutex m{};
 
-template <typename T> class Ref
+template <typename T>
+class Ref
 {
 public:
     Ref();
     Ref( std::nullptr_t );
     Ref( T* instance );
     Ref( const Ref<T>& other );
-    template <typename T2> Ref( const Ref<T2>& other );
-    template <typename T2> Ref( Ref<T2>&& other );
+    template <typename T2>
+    Ref( const Ref<T2>& other );
+    template <typename T2>
+    Ref( Ref<T2>&& other );
 
     ~Ref();
 
 public:
-    template <typename... Args, auto size = sizeof( T )> static Ref<T> Create( Args&&... args );
+    template <typename... Args, auto size = sizeof( T )>
+    static Ref<T> Create( Args&&... args );
     static Ref<T> CopyWithoutIncrement( const Ref<T>& other );
 
 public:
@@ -51,14 +55,17 @@ public:
     const T* Raw() const;
 
     void Reset( T* instance = nullptr );
-    template <typename T2> Ref<T2> As() const;
+    template <typename T2>
+    Ref<T2> As() const;
     bool EqualsObject( const Ref<T>& other );
 
 public:
     Ref& operator=( std::nullptr_t );
     Ref& operator=( const Ref<T>& other );
-    template <typename T2> Ref& operator=( Ref<T2>&& other );
-    template <typename T2> Ref& operator=( const Ref<T2>& other );
+    template <typename T2>
+    Ref& operator=( Ref<T2>&& other );
+    template <typename T2>
+    Ref& operator=( const Ref<T2>& other );
 
     bool operator==( const Ref<T>& other ) const;
     bool operator!=( const Ref<T>& other ) const;
@@ -79,11 +86,13 @@ private:
     void IncRef() const;
     void DecRef() const;
 
-    template <class T2> friend class Ref;
+    template <class T2>
+    friend class Ref;
     mutable T* m_Instance;
 };
 
-template <typename T> class WeakRef
+template <typename T>
+class WeakRef
 {
 public:
     WeakRef() = default;

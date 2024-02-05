@@ -74,10 +74,13 @@ public:
 
     uint32_t GetSize() const;
 
-    template <typename T> T& Read( uint32_t offset = 0 );
-    template <typename T> T& Read( uint32_t offset = 0 ) const;
+    template <typename T>
+    T& Read( uint32_t offset = 0 );
+    template <typename T>
+    T& Read( uint32_t offset = 0 ) const;
 
-    template <typename T> T* As();
+    template <typename T>
+    T* As();
 
 public:
     operator bool() const;

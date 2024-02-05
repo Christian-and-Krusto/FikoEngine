@@ -99,7 +99,6 @@ std::filesystem::path SearchFolder( TCHAR* path, HWND hwnd )
     return output;
 }//SEARCH FOLDER
 
-
 std::filesystem::path FileDialogs::OpenFolder( GLFWwindow* window )
 {
     TCHAR path[ MAX_PATH ] = "./";
@@ -162,7 +161,9 @@ std::filesystem::path FileDialogs::OpenFile( GLFWwindow* window, const char* fil
     if ( GetOpenFileName( &ofn ) == TRUE ) { return std::filesystem::path( ofn.lpstrFile ); }
     return std::filesystem::current_path();
 }
+
 std::filesystem::path FileDialogs::NewFile( const char* filter ) { return SaveFile( filter ); }
+
 std::string FileDialogs::SaveFile( const char* filter )
 {
     char filename[ MAX_PATH ];

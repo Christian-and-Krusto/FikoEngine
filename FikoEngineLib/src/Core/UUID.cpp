@@ -68,19 +68,23 @@ namespace FikoEngine
     UUID class 64 bit constructor implementation
     ***********************************************************************************************************************/
     UUID::UUID() : m_UUID( s_UniformDistribution( eng ) ) {}
+
     UUID::UUID( uint64_t uuid ) : m_UUID( uuid ) {}
+
     UUID::UUID( const UUID& other ) : m_UUID( other.m_UUID ) {}
 
     /***********************************************************************************************************************
     UUID class 64 bit getters implementation
     ***********************************************************************************************************************/
     uint64_t UUID::GetID() { return m_UUID; }
+
     uint64_t UUID::GetID() const { return m_UUID; }
 
     /***********************************************************************************************************************
     UUID class 64 bit operators implementation
     ***********************************************************************************************************************/
     UUID::operator const uint64_t() const { return m_UUID; }
+
     UUID::operator uint64_t() { return m_UUID; }
 }// namespace FikoEngine
 
@@ -90,18 +94,22 @@ namespace FikoEngine
     UUID class 32 bit constructor implementation
     ***********************************************************************************************************************/
     UUID32::UUID32() : m_UUID( s_UniformDistribution32( eng32 ) ) {}
+
     UUID32::UUID32( uint32_t uuid ) : m_UUID( uuid ) {}
+
     UUID32::UUID32( const UUID32& other ) : m_UUID( other.m_UUID ) {}
 
     /***********************************************************************************************************************
     UUID class 32 bit getters implementation
     ***********************************************************************************************************************/
     uint32_t UUID32::GetID() { return m_UUID; }
+
     uint32_t UUID32::GetID() const { return m_UUID; }
 
     /***********************************************************************************************************************
     UUID class 32 bit operators implementation
     ***********************************************************************************************************************/
     UUID32::operator const uint32_t() const { return m_UUID; }
+
     UUID32::operator uint32_t() { return m_UUID; }
 }// namespace FikoEngine
