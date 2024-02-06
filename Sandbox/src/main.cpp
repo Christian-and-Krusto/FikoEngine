@@ -1,8 +1,12 @@
+#include "SandboxLayer.hpp"
+#include <FikoEngine.hpp>
 #include <iostream>
 
 int main()
 {
-    std::cout << "Hello world!\n";
-
+    LOG_INFO( "Lol" );
+    FikoEngine::Application::Init();
+    FikoEngine::Application::AddLayer<SandboxLayer>();
+    FikoEngine::Application::Destroy();
     return 0;
 }
