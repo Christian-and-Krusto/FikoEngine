@@ -53,7 +53,7 @@ message("${PROJECT_NAME}: Linking libraries")
 target_precompile_headers (${PROJECT_NAME}Lib PUBLIC ${PROJECT_NAME}Lib/src/Core/${PROJECT_NAME}.pch.h)
 
 target_link_libraries(${PROJECT_NAME}InterfaceLibrary INTERFACE
-        LWLOG
+        lwlog_lib
         )
 
 target_link_libraries(${PROJECT_NAME}Lib PUBLIC ${PROJECT_NAME}InterfaceLibrary)

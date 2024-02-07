@@ -45,6 +45,7 @@ Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
+
     class Layer
     {
     public:
@@ -56,6 +57,7 @@ namespace FikoEngine
         virtual void OnMouseClickEvent() = 0;
         virtual void OnMouseMoveEvent() = 0;
         virtual void OnKeyboardEvent() = 0;
+        virtual std::string GetName() const = 0;
 
     private:
     };

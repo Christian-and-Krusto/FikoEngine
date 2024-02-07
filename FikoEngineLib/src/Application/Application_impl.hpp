@@ -1,3 +1,4 @@
+#pragma once
 /**
  * @file
  * @author Krusto Stoyanov ( k.stoianov2@gmail.com )
@@ -37,10 +38,11 @@
 Includes
 ***************************************************************************************************************************/
 
-#include "Application.hpp"
-#include "../Core/Layer.hpp"
+#include "../Core/LayerStack.hpp"
 #include "../Core/Log.hpp"
+#include "Application.hpp"
 #include <concepts>
+
 
 /***************************************************************************************************************************
 Macro definitions
@@ -60,12 +62,21 @@ Static function Prototypes
 ***************************************************************************************************************************/
 namespace FikoEngine
 {
+    void Application::Run() {}
+
+    template <typename T>
+    void Application::AddLayer()
+    {
+        if ( !std::derived_from<T, Layer> ) { LOG_INFO( "Layer type does not have Layer as a Base type!" ); }
+        else { LayerStack::AddLayer<T>(); }
+    }
+
     void Application::Init()
     {
         if ( nullptr == Application::s_Application )
         {
             Application::s_Application = new Application();
-
+            LayerStack::Init();
             LOG_INFO( "Application initialized!" );
         }
     }
@@ -74,6 +85,7 @@ namespace FikoEngine
     {
         if ( nullptr != Application::s_Application )
         {
+            LayerStack::Destroy();
             delete Application::s_Application;
             LOG_INFO( "Application destroyed!" );
         }
@@ -81,12 +93,5 @@ namespace FikoEngine
 
     Application* Application::Get() { return Application::s_Application; }
 
-    template <typename T>
-    void Application::AddLayer()
-    {
-        bool derived = std::derived_from<T, Layer>;
-        if ( derived ) { LOG_INFO( "Layer type does not have Layer as a Base type!" ); }
-        else { LOG_INFO( "Layer added!" ); }
-    }
 
 }// namespace FikoEngine

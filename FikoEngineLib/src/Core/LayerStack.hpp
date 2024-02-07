@@ -32,39 +32,52 @@
  * 
  * @section DESCRIPTION
  * 
- * Application class definition
+ * Layer class definition
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include "Layer.hpp"
+#include <string_view>
+#include <vector>
 
 /***********************************************************************************************************************
 Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    class Application
+    enum class LayerStatus
+    {
+        None,
+        LayerAdded,
+        LayerRemoved,
+        LayerNotAdded,
+        LayerAlreadyExist
+    };
+
+    class LayerStack
     {
     public:
-        Application() = default;
+        LayerStack() = default;
+        ~LayerStack() = default;
 
         static void Init();
-
-        static void Destroy();
-
-        static void Run();
-
         template <typename T>
-        void AddLayer();
-
-        static Application* Get();
+        static LayerStatus AddLayer();
+        static LayerStatus RemoveLayer( std::string_view name );
+        static void Destroy();
+        static LayerStack* Get();
+        static Layer* GetLayer( std::string_view name );
+        static const auto& GetLayers();
 
     private:
-        static Application* s_Application;
+        static LayerStack* s_LayerStack;
+
+        std::vector<Layer*> m_Layers;
     };
 
 }// namespace FikoEngine
 
-#include "Application_impl.hpp"
+#include "LayerStack_impl.hpp"

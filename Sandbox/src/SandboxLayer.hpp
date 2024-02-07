@@ -22,4 +22,6 @@ public:
     void OnMouseMoveEvent() override {}
 
     void OnKeyboardEvent() override {}
+
+    std::string GetName() const override { return "SandboxLayer"; }
 };
