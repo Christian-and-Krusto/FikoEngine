@@ -52,6 +52,7 @@ namespace FikoEngine
         virtual void Init() = 0;
         virtual void Destroy() = 0;
         virtual void OnAttach() = 0;
+        virtual void OnDettach() = 0;
         virtual void OnDestroy() = 0;
         virtual void OnUpdate() = 0;
         virtual void OnMouseClickEvent() = 0;

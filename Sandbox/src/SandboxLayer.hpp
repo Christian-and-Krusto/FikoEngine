@@ -13,6 +13,8 @@ public:
 
     void OnAttach() override {}
 
+    void OnDettach() override {}
+
     void OnDestroy() override {}
 
     void OnUpdate() override {}

@@ -32,7 +32,7 @@
  * 
  * @section DESCRIPTION
  * 
- * Application class definition
+ * Renderer class definition
  */
 
 
@@ -44,42 +44,34 @@ Includes
 /***********************************************************************************************************************
 Class definitions
 ***********************************************************************************************************************/
+
 namespace FikoEngine
 {
-    struct ApplicationSpec {
-        std::string ApplicationName;
+    struct RendererSpec {
         std::filesystem::path WorkingDirectory;
-        uint32_t StartupWidth;
-        uint32_t StartupHeight;
+        uint32_t width;
+        uint32_t height;
     };
 
-    class Application
+    class Renderer
     {
     public:
-        Application() = delete;
-        explicit Application( ApplicationSpec applicationSpec );
+        Renderer( RendererSpec& rendererSpec );
+        ~Renderer();
 
     public:
-        static void Init( ApplicationSpec applicationSpec );
-
-        template <typename T>
-        static void AddLayer();
-
-        static void Run();
+        static void Create(RendererSpec& rendererSpec);
 
         static void Destroy();
 
-        static Application* Get();
-        static ApplicationSpec& GetSpec();
+        static Renderer* GetRenderer();
+
+        static RendererSpec GetRendererSpec();
 
     private:
-        static Application* s_Application;
+        static Renderer* s_Renderer;
 
     private:
-        bool m_StoppedFlag{};
-        ApplicationSpec m_ApplicationSpec;
+        RendererSpec m_RendererSpec;
     };
-
 }// namespace FikoEngine
-
-#include "Application_impl.hpp"

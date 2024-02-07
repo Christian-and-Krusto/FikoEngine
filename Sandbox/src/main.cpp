@@ -3,9 +3,11 @@
 
 int main()
 {
-    LOG_INFO( "Lol" );
-    FikoEngine::Application::Init();
-    FikoEngine::Application::Get()->AddLayer<SandboxLayer>();
+    FikoEngine::Application::Init( FikoEngine::ApplicationSpec{ .ApplicationName = "Sandbox Application",
+                                     .WorkingDirectory = std::filesystem::current_path(),
+                                     .StartupWidth = 1280,
+                                     .StartupHeight = 720 } );
+    FikoEngine::Application::AddLayer<SandboxLayer>();
 
     FikoEngine::Application::Run();
 

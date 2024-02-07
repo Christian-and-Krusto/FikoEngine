@@ -38,8 +38,10 @@
 Includes
 ***************************************************************************************************************************/
 
-#include "../Core/LayerStack.hpp"
-#include "../Core/Log.hpp"
+#include <Core/LayerStack.hpp>
+#include <Core/Log.hpp>
+#include <Renderer/Renderer.hpp>
+
 #include "Application.hpp"
 #include <concepts>
 
@@ -57,35 +59,54 @@ Static variables
 ***************************************************************************************************************************/
 FikoEngine::Application* FikoEngine::Application::s_Application = nullptr;
 
-/***************************************************************************************************************************
-Static function Prototypes
-***************************************************************************************************************************/
 namespace FikoEngine
 {
-    void Application::Run() {}
 
-    template <typename T>
-    void Application::AddLayer()
+    /***************************************************************************************************************************
+    Application class static function implementations
+    ***************************************************************************************************************************/
+    void Application::Run()
     {
-        if ( !std::derived_from<T, Layer> ) { LOG_INFO( "Layer type does not have Layer as a Base type!" ); }
-        else { LayerStack::AddLayer<T>(); }
+        LayerStack::InitLayers();
+
+        while ( !Application::Get()->m_StoppedFlag )
+        {
+            for ( auto& layer: LayerStack::GetLayers() )
+            {
+                layer->OnUpdate();
+                Application::Get()->m_StoppedFlag = true;
+            }
+        }
     }
 
-    void Application::Init()
+    Application::Application( ApplicationSpec applicationSpec ) : m_ApplicationSpec( applicationSpec ) {}
+
+    void Application::Init( ApplicationSpec applicationSpec )
     {
         if ( nullptr == Application::s_Application )
         {
-            Application::s_Application = new Application();
-            LayerStack::Init();
+            Application::s_Application = new Application( applicationSpec );
+
             LOG_INFO( "Application initialized!" );
+            RendererSpec rendererSpec;
+            rendererSpec.WorkingDirectory = Application::GetSpec().WorkingDirectory;
+            rendererSpec.width = Application::GetSpec().StartupWidth;
+            rendererSpec.height = Application::GetSpec().StartupHeight;
+            Renderer::Create( rendererSpec );
+
+            LayerStack::Init();
         }
     }
 
     void Application::Destroy()
     {
+
         if ( nullptr != Application::s_Application )
         {
             LayerStack::Destroy();
+
+            Renderer::Destroy();
+
             delete Application::s_Application;
             LOG_INFO( "Application destroyed!" );
         }
@@ -93,5 +114,12 @@ namespace FikoEngine
 
     Application* Application::Get() { return Application::s_Application; }
 
+    ApplicationSpec& Application::GetSpec() { return Application::Get()->m_ApplicationSpec; }
 
+    template <typename T>
+    void Application::AddLayer()
+    {
+        if ( !std::derived_from<T, Layer> ) { LOG_INFO( "Layer type does not have Layer as a Base type!" ); }
+        else { LayerStack::AddLayer<T>(); }
+    }
 }// namespace FikoEngine

@@ -59,6 +59,10 @@ namespace FikoEngine
     {
         LayerStack::Get()->m_Layers.emplace_back( new T() );
         LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " added!" );
+
+        LayerStack::Get()->m_Layers.back()->OnAttach();
+        LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " attached!" );
+
         return LayerStatus::LayerAdded;
     }
 
@@ -70,6 +74,8 @@ namespace FikoEngine
             if ( layer->GetName() == std::string( name ) )
             {
                 delete layer;
+                layer->OnDettach();
+                layer->OnDestroy();
                 LayerStack::Get()->m_Layers.erase( LayerStack::Get()->m_Layers.begin() + index );
                 break;
             }
@@ -80,6 +86,7 @@ namespace FikoEngine
 
     inline void LayerStack::Destroy()
     {
+        LayerStack::DestroyLayers();
         for ( auto& layer: LayerStack::Get()->m_Layers )
         {
             LOG_INFO( "Layer " + layer->GetName() + " removed!" );
@@ -101,5 +108,26 @@ namespace FikoEngine
     }
 
     inline const auto& LayerStack::GetLayers() { return LayerStack::Get()->m_Layers; }
+
+    inline void LayerStack::InitLayers()
+    {
+        for ( auto& layer: LayerStack::Get()->m_Layers )
+        {
+            layer->Init();
+            LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " initialized!" );
+        }
+    }
+
+    inline void LayerStack::DestroyLayers()
+    {
+        for ( auto& layer: LayerStack::Get()->m_Layers )
+        {
+            layer->Destroy();
+            LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " destroyed!" );
+
+            layer->OnDettach();
+            LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " dettached!" );
+        }
+    }
 
 }// namespace FikoEngine

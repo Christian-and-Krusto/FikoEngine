@@ -71,7 +71,8 @@ namespace FikoEngine
         static LayerStack* Get();
         static Layer* GetLayer( std::string_view name );
         static const auto& GetLayers();
-
+        static void InitLayers();
+        static void DestroyLayers();
     private:
         static LayerStack* s_LayerStack;
 
