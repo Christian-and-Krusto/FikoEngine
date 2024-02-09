@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/particles.dir/particles.c.o CMakeFiles/particles.dir/__/deps/tinycthread.c.o CMakeFiles/particles.dir/__/deps/getopt.c.o CMakeFiles/particles.dir/__/deps/glad_gl.c.o  -o particles  -Wl,-rpath,/home/krusto/CLionProjects/BlockCraft/vendor/glad/glfw-3.3.4/src ../src/libglfw.so.3.3 -lm -lpthread -lrt 

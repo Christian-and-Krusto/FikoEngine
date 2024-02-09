@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/triangle-vulkan.dir/triangle-vulkan.c.o CMakeFiles/triangle-vulkan.dir/__/deps/glad_vulkan.c.o  -o triangle-vulkan  -Wl,-rpath,/home/krusto/CLionProjects/BlockCraft/vendor/glad/glfw-3.3.4/src ../src/libglfw.so.3.3 -lm 

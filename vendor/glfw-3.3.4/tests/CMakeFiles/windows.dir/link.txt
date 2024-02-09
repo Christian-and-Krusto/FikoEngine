@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/windows.dir/windows.c.o CMakeFiles/windows.dir/__/deps/getopt.c.o CMakeFiles/windows.dir/__/deps/glad_gl.c.o  -o windows  -Wl,-rpath,/home/krusto/CLionProjects/BlockCraft/vendor/glad/glfw-3.3.4/src ../src/libglfw.so.3.3 -lm 

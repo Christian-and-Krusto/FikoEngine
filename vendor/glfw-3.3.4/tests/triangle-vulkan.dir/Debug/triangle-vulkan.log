@@ -1,0 +1,5 @@
+﻿  Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/tests/CMakeLists.txt
+  triangle-vulkan.c
+  glad_vulkan.c
+  Generating Code...
+  triangle-vulkan.vcxproj -> C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\Debug\triangle-vulkan.exe

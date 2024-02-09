@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\triangle-vulkan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\deps\glad_vulkan.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\deps\glad\vulkan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{7E20684A-9981-3F2F-8710-DB90C519DC6E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{D7D022B6-E262-341C-8323-3F298D4B2E86}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

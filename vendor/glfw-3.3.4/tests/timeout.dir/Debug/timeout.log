@@ -1,0 +1,5 @@
+﻿  Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/tests/CMakeLists.txt
+  timeout.c
+  glad_gl.c
+  Generating Code...
+  timeout.vcxproj -> C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\Debug\timeout.exe

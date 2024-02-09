@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/simple.dir/simple.c.o CMakeFiles/simple.dir/__/deps/glad_gl.c.o  -o simple  -Wl,-rpath,/home/krusto/CLionProjects/BlockCraft/vendor/glad/glfw-3.3.4/src ../src/libglfw.so.3.3 -lm 

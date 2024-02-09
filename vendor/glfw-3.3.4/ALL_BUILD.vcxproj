@@ -1,0 +1,297 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|x64">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|x64">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E7C0CCF8-7DEE-32A7-9C72-A3C8A6C98982}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>ALL_BUILD</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glad\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glfw-3.3.4\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glm;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\OpenSimplexNoise\OpenSimplexNoise;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glad\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glfw-3.3.4\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glm;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\OpenSimplexNoise\OpenSimplexNoise;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glad\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glfw-3.3.4\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glm;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\OpenSimplexNoise\OpenSimplexNoise;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glad\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glfw-3.3.4\include;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\glm;C:\Users\Krusto\Desktop\BlockCraft\.\vendor\OpenSimplexNoise\OpenSimplexNoise;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\CMakeLists.txt">
+      <UseUtf8Encoding>Always</UseUtf8Encoding>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Krusto/Desktop/BlockCraft -BC:/Users/Krusto/Desktop/BlockCraft --check-stamp-file C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\cmake_uninstall.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3.pc.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3Config.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw_config.h.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Krusto/Desktop/BlockCraft -BC:/Users/Krusto/Desktop/BlockCraft --check-stamp-file C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\cmake_uninstall.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3.pc.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3Config.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw_config.h.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Krusto/Desktop/BlockCraft -BC:/Users/Krusto/Desktop/BlockCraft --check-stamp-file C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\cmake_uninstall.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3.pc.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3Config.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw_config.h.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/Krusto/Desktop/BlockCraft -BC:/Users/Krusto/Desktop/BlockCraft --check-stamp-file C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.c.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\cmake_uninstall.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3.pc.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw3Config.cmake.in;C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw_config.h.in;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\ZERO_CHECK.vcxproj">
+      <Project>{C0925F65-F9C2-3AA7-9714-82095B926C75}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\boing.vcxproj">
+      <Project>{52AA1B97-B5FD-305C-81B2-F7E25912EF69}</Project>
+      <Name>boing</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\clipboard.vcxproj">
+      <Project>{4C78C8A0-1201-3F11-A2F3-91F167B8322C}</Project>
+      <Name>clipboard</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\cursor.vcxproj">
+      <Project>{6C473540-CE06-3F45-BBA0-D3A39ED981E3}</Project>
+      <Name>cursor</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\empty.vcxproj">
+      <Project>{C18E6E64-535A-3450-99FB-8C712DB3E188}</Project>
+      <Name>empty</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\events.vcxproj">
+      <Project>{8F33B74E-1ECF-332C-94B2-518E958265AF}</Project>
+      <Name>events</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\gamma.vcxproj">
+      <Project>{7A4EB728-5C7A-3620-A1E8-E7106E58BF9A}</Project>
+      <Name>gamma</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\gears.vcxproj">
+      <Project>{73F9E190-348E-325B-BB9E-B1F88436FFB0}</Project>
+      <Name>gears</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\src\glfw.vcxproj">
+      <Project>{E62B692B-8616-3293-8043-F967664BF5DB}</Project>
+      <Name>glfw</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\glfwinfo.vcxproj">
+      <Project>{592749DE-B897-358D-85C9-F02D7B48B387}</Project>
+      <Name>glfwinfo</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\heightmap.vcxproj">
+      <Project>{571721B2-738A-3931-8BBE-BACD8E8F7F5F}</Project>
+      <Name>heightmap</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\icon.vcxproj">
+      <Project>{5C21A6C0-E4FD-3460-83C9-2D41D233F45D}</Project>
+      <Name>icon</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\iconify.vcxproj">
+      <Project>{9AE07556-0D37-3BEA-823B-441CDC8B782D}</Project>
+      <Name>iconify</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\inputlag.vcxproj">
+      <Project>{1A111C05-FCFF-336C-B288-BC6CE4EAFDCF}</Project>
+      <Name>inputlag</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\joysticks.vcxproj">
+      <Project>{9F09FD9E-F9E0-3B84-87CF-5F0E74583147}</Project>
+      <Name>joysticks</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\monitors.vcxproj">
+      <Project>{B1BCD755-3103-3F90-B23D-7A7EDF59E42D}</Project>
+      <Name>monitors</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\msaa.vcxproj">
+      <Project>{D19C840E-9368-3431-8099-80869986C1D5}</Project>
+      <Name>msaa</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\offscreen.vcxproj">
+      <Project>{B9C3C810-C443-30EC-97B0-094B26FF9055}</Project>
+      <Name>offscreen</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\opacity.vcxproj">
+      <Project>{60A7C0A6-DD15-3468-9065-E08BEDEC4295}</Project>
+      <Name>opacity</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\particles.vcxproj">
+      <Project>{D698D136-7A51-3BA0-ABBA-6F2CCED7F3A2}</Project>
+      <Name>particles</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\reopen.vcxproj">
+      <Project>{92F61C82-4607-34C2-86B7-05C54259BF03}</Project>
+      <Name>reopen</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\sharing.vcxproj">
+      <Project>{0739471F-3FA1-33CC-97AC-B192929D8E37}</Project>
+      <Name>sharing</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\simple.vcxproj">
+      <Project>{958F272D-3B21-36DE-BED2-EFD949F6CA71}</Project>
+      <Name>simple</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\splitview.vcxproj">
+      <Project>{3A5663BE-607E-3B47-ACC2-D87520E45F4F}</Project>
+      <Name>splitview</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\tearing.vcxproj">
+      <Project>{7EA03436-6D23-36CF-B3BA-A6729B884B87}</Project>
+      <Name>tearing</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\threads.vcxproj">
+      <Project>{527C81AE-B125-366A-A545-A5F093753B9C}</Project>
+      <Name>threads</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\timeout.vcxproj">
+      <Project>{9B4A99D7-A29A-3F6D-AB05-A403D957EB9D}</Project>
+      <Name>timeout</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\title.vcxproj">
+      <Project>{3D9E48DC-1CB5-38C6-B036-6630719D8C4A}</Project>
+      <Name>title</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\triangle-vulkan.vcxproj">
+      <Project>{6434E5EE-E78C-3898-844D-D4718A09A3F1}</Project>
+      <Name>triangle-vulkan</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\wave.vcxproj">
+      <Project>{16E6A645-5D97-3BFC-ACB2-EF63F154D02B}</Project>
+      <Name>wave</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\windows.vcxproj">
+      <Project>{83927B24-9CCA-365C-BF71-7A5022524A27}</Project>
+      <Name>windows</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

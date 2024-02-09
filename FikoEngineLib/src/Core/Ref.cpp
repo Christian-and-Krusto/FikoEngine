@@ -148,11 +148,9 @@ template <typename T>
 template <typename... Args, auto size>
 Ref<T> Ref<T>::Create( Args&&... args )
 {
-    FikoEngine::mem::memsize += size;
 
 #ifdef __GNUC__
-    LOG_INFO( "Allocated " + std::to_string( size ) + "B  Total: " + std::to_string( FikoEngine::mem::memsize ) +
-              "B  Ref<" + std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
+    LOG_INFO( "Allocated " + std::to_string( size ) + "B Ref<" + std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
 #else
 #endif
     return Ref<T>( new T( std::forward<Args>( args )... ) );
@@ -329,11 +327,10 @@ void Ref<T>::DecRef() const
         {
             std::lock_guard<std::mutex> lock( m );
             delete m_Instance;
-            FikoEngine::mem::memsize -= RefUtils::GetSizeFromLiveReferences( ( void* ) m_Instance );
 
 #ifdef __GNUC__
             LOG_INFO( "Deallocated " + std::to_string( RefUtils::GetSizeFromLiveReferences( ( void* ) m_Instance ) ) +
-                      "B  Total: " + std::to_string( FikoEngine::mem::memsize ) + "B  Ref<" +
+                      "B Ref<" +
                       std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
 #else
 #endif

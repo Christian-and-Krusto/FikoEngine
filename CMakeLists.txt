@@ -15,6 +15,9 @@ message("System Architecture: ${CMAKE_GENERATOR_PLATFORM}")
 message("${PROJECT_NAME}: Adding lwlog")
 add_subdirectory(vendor/lwlog)
 
+message("${PROJECT_NAME}: Adding glfw")
+add_subdirectory(vendor/glfw-3.3.4)
+
 message("${PROJECT_NAME}: Adding source files")
 
 file(GLOB_RECURSE ${PROJECT_NAME}_SOURCE_FILES ./${PROJECT_NAME}Lib/src/*.cpp)
@@ -26,14 +29,6 @@ file(GLOB_RECURSE ${PROJECT_NAME}_EDITOR_HEADER_FILES ./${PROJECT_NAME}Editor/sr
 file(GLOB_RECURSE SANDBOX_SOURCE_FILES ./Sandbox/src/*.cpp)
 file(GLOB_RECURSE SANDBOX_HEADER_FILES ./Sandbox/src/*.h)
 
-if (WIN32)
-    # for Windows operating system in general
-else ()
-    find_package(X11 REQUIRED)
-    link_libraries(${X11_LIBRARIES})
-    add_definitions(-D_LINUX)
-endif ()
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
@@ -41,9 +36,21 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_library(${PROJECT_NAME}Lib STATIC ${FikoEngine_SOURCE_FILES} )
 
 set(LWLOG_INCLUDE_DIR "./vendor/lwlog/lwlog/src")
+set(GLFW_INCLUDE_DIR "./vendor/glfw-3.3.4/include")
+set(VULKAN_INCLUDE_DIR         "C:/VulkanSDK/1.3.261.1/Include")
 set(${PROJECT_NAME}_INCLUDE_DIR "./${PROJECT_NAME}Lib/src")
 
-target_include_directories(${PROJECT_NAME}Lib PUBLIC ${FikoEngine_INCLUDE_DIR} ${LWLOG_INCLUDE_DIR})
+if (WIN32)
+    target_compile_definitions(${PROJECT_NAME}Lib PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
+else ()
+    find_package(X11 REQUIRED)
+    link_libraries(${X11_LIBRARIES})
+
+    add_definitions(-D_LINUX)
+    add_definitions(-DGLFW_EXPOSE_NATIVE_X11)
+endif ()
+
+target_include_directories(${PROJECT_NAME}Lib PUBLIC ${FikoEngine_INCLUDE_DIR} ${LWLOG_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} ${VULKAN_INCLUDE_DIR})
 
 set_target_properties(${PROJECT_NAME}Lib PROPERTIES LINKER_LANGUAGE CXX)
 add_library(${PROJECT_NAME}InterfaceLibrary INTERFACE)
@@ -54,6 +61,8 @@ target_precompile_headers (${PROJECT_NAME}Lib PUBLIC ${PROJECT_NAME}Lib/src/Core
 
 target_link_libraries(${PROJECT_NAME}InterfaceLibrary INTERFACE
         lwlog_lib
+        glfw
+        C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib
         )
 
 target_link_libraries(${PROJECT_NAME}Lib PUBLIC ${PROJECT_NAME}InterfaceLibrary)

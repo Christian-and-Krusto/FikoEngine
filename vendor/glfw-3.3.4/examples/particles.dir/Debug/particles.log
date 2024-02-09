@@ -1,0 +1,7 @@
+﻿  Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/examples/CMakeLists.txt
+  particles.c
+  tinycthread.c
+  getopt.c
+  glad_gl.c
+  Generating Code...
+  particles.vcxproj -> C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\examples\Debug\particles.exe

@@ -32,7 +32,7 @@
  * 
  * @section DESCRIPTION
  * 
- * Buffer class definition
+ * Log class definition
  */
 
 /***********************************************************************************************************************
@@ -73,12 +73,6 @@ namespace FikoEngine
 #endif
     private:
         static std::shared_ptr<Logger> s_Logger;
-    };
-
-    class mem
-    {
-    public:
-        inline static int memsize = 0;
     };
 
 }// namespace FikoEngine

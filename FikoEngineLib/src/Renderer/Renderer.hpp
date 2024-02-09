@@ -39,6 +39,8 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include "RendererSpec.hpp"
+#include <Core/Result.hpp>
 #include <filesystem>
 
 /***********************************************************************************************************************
@@ -47,22 +49,30 @@ Class definitions
 
 namespace FikoEngine
 {
-    struct RendererSpec {
-        std::filesystem::path WorkingDirectory;
-        uint32_t width;
-        uint32_t height;
+    enum class RendererStatus
+    {
+        Success,
+        Fail,
+        Created,
+        Initialized,
+        Not_Initialized,
+        Destroyed
     };
 
     class Renderer
     {
     public:
+        Renderer() = default;
         Renderer( RendererSpec& rendererSpec );
         ~Renderer();
 
     public:
-        static void Create(RendererSpec& rendererSpec);
+        Result<RendererStatus> Init( RendererSpec& RendererSpec );
 
-        static void Destroy();
+    public:
+        static Result<RendererStatus> Create( RendererSpec& rendererSpec );
+
+        static Result<RendererStatus> Destroy();
 
         static Renderer* GetRenderer();
 

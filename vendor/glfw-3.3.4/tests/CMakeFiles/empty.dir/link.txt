@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/empty.dir/empty.c.o CMakeFiles/empty.dir/__/deps/tinycthread.c.o CMakeFiles/empty.dir/__/deps/glad_gl.c.o  -o empty  -Wl,-rpath,/home/krusto/CLionProjects/BlockCraft/vendor/glad/glfw-3.3.4/src ../src/libglfw.so.3.3 -lm -lpthread -lrt 

@@ -1,0 +1,1 @@
+/usr/bin/cc   -rdynamic CMakeFiles/gamma.dir/gamma.c.o CMakeFiles/gamma.dir/__/deps/glad_gl.c.o  -o gamma  -Wl,-rpath,/home/krusto/CLionProjects/BlockCraft/vendor/glad/glfw-3.3.4/src ../src/libglfw.so.3.3 -lm 

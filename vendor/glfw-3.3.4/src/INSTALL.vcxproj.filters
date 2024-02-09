@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Krusto\Desktop\BlockCraft\CMakeFiles\ff1bf2447a1c927f0b7e04ee21bb64f2\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{278FFB9F-6E59-3199-9AE7-79E7803A8917}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

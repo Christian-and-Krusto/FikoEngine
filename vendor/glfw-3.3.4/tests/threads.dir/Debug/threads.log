@@ -1,0 +1,6 @@
+﻿  Building Custom Rule C:/Users/Krusto/Desktop/BlockCraft/vendor/glfw-3.3.4/tests/CMakeLists.txt
+  threads.c
+  tinycthread.c
+  glad_gl.c
+  Generating Code...
+  threads.vcxproj -> C:\Users\Krusto\Desktop\BlockCraft\vendor\glfw-3.3.4\tests\Debug\threads.exe

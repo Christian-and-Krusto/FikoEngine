@@ -3,3 +3,6 @@
 /.idea
 /cmake-build-debug
 /cmake-build-release
+/vendor/glfw-3.3.4/build
+/vendor/glfw-3.3.4/CMakeFiles
+/vendor/glfw-3.3.4/CMakeCache.txt

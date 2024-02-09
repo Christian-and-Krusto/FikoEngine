@@ -89,6 +89,7 @@ namespace FikoEngine
 
             LOG_INFO( "Application initialized!" );
             RendererSpec rendererSpec;
+            rendererSpec.AppName = applicationSpec.ApplicationName;
             rendererSpec.WorkingDirectory = Application::GetSpec().WorkingDirectory;
             rendererSpec.width = Application::GetSpec().StartupWidth;
             rendererSpec.height = Application::GetSpec().StartupHeight;
