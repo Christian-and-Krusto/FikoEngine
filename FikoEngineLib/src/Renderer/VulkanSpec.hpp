@@ -32,25 +32,26 @@
  * 
  * @section DESCRIPTION
  * 
- * Result struct definition
+ * Vulkan specific renderer spec structure definition
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include <cstdint>
+#include <filesystem>
+#include <vector>
 
+#include "RendererSpec.hpp"
 /***********************************************************************************************************************
-Class definitions
+Structure definitions
 ***********************************************************************************************************************/
 
 namespace FikoEngine
 {
-    template<typename StatusType,typename RetValueType = uint32_t>
-    struct Result
-    {
-        StatusType status;
-        RetValueType returnValue;
+    struct VulkanSpec {
+        RendererSpec rendererSpec;
+        std::vector<std::string_view> layers;
     };
+
 }// namespace FikoEngine

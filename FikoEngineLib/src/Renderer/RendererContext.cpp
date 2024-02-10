@@ -1,6 +1,8 @@
 #include "RendererContext.hpp"
+#include "VulkanInstance.hpp"
 #include <Core/Log.hpp>
 #include <GLFW/glfw3.h>
+
 
 FikoEngine::RendererContext* FikoEngine::RendererContext::s_RendererContext = nullptr;
 
@@ -23,6 +25,8 @@ namespace FikoEngine
             result = Window::Create( rendererSpec );
             tries++;
         }
+
+        auto result1 = CreateInstance(VulkanSpec{rendererSpec,{}});
 
         if ( result.status == WindowStatus::Created )
         {

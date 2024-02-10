@@ -39,6 +39,9 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include "VulkanSpec.hpp"
+#include <Core/Result.hpp>
+#include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
 Structure definitions
@@ -46,4 +49,13 @@ Structure definitions
 
 namespace FikoEngine
 {
+    enum class VulkanInstanceStatus
+    {
+        Success,
+        Fail,
+        Created,
+        Destroyed
+    };
+
+    Result<VulkanInstanceStatus, vk::Instance> CreateInstance( VulkanSpec spec);
 }// namespace FikoEngine
