@@ -32,30 +32,39 @@
  * 
  * @section DESCRIPTION
  * 
- * Window class definition
+ * Command Pool class definition 
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "RendererSpec.hpp"
 #include <Core/Result.hpp>
-#include <GLFW/glfw3.h>
-#include <vector>
+#include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
-Enum Class definitions
+Enum class definitions
 ***********************************************************************************************************************/
-enum class WindowStatus
+namespace FikoEngine
 {
-    Success,
-    Fail,
-    Created,
-    Initialized,
-    Not_Initialized,
-    Destroyed
-};
+    enum class CommandPoolState
+    {
+        Fail,
+        Created,
+        Destroyed
+    };
+
+    enum class CommandBufferState
+    {
+        Created,
+        Destroyed,
+        Initial,
+        Recording,
+        Executable,
+        Pending,
+        Invalid
+    };
+}// namespace FikoEngine
 
 /***********************************************************************************************************************
 Class definitions
@@ -64,23 +73,31 @@ Class definitions
 namespace FikoEngine
 {
 
-    class Window
+    class CommandPool
     {
     public:
-        Window() = default;
-        ~Window();
+        CommandPool() = default;
+        ~CommandPool() = default;
 
     public:
-        Result<WindowStatus> Init( RendererSpec& rendererSpec );
+        Result<CommandBufferState> CreateCommandBuffer();
+        Result<CommandBufferState, vk::CommandBuffer> GetCommandBuffer( uint32_t id = 0 );
+
+        Result<CommandBufferState> BeginCommandBuffer( uint32_t id = 0 );
+        Result<CommandBufferState> EndCommandBuffer( uint32_t id = 0 );
 
     public:
-        static Result<WindowStatus, Window*> Create( RendererSpec& rendererSpec );
-        static Result<WindowStatus> Destroy( Window* window );
+        static Result<CommandPoolState, CommandPool*> Create( vk::Device* device, uint32_t graphicsQueueFamilyIndex );
+        static Result<CommandPoolState> Destroy( CommandPool* commandPool );
 
-        static Result<bool, std::vector<std::string>> GetRequiredExtensions();
+    public:
+        operator VkCommandPool() const { return m_VkCommandPool; }
+
+        operator vk::CommandPool() const { return m_VkCommandPool; }
 
     private:
-        RendererSpec m_RendererSpec;
-        GLFWwindow* m_WindowPtr;
+        vk::CommandPool m_VkCommandPool;
+        std::vector<std::pair<CommandBufferState, vk::CommandBuffer>> m_VkCommandBuffers;
+        vk::Device* m_VkDevice;
     };
 }// namespace FikoEngine

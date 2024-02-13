@@ -32,30 +32,59 @@
  * 
  * @section DESCRIPTION
  * 
- * VulkanInstance class definition
+ * Vulkan Debug Messanger class definitions
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "VulkanSpec.hpp"
 #include <Core/Result.hpp>
+
 #include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
-Structure definitions
+Static Variables
 ***********************************************************************************************************************/
 
+/***********************************************************************************************************************
+Enum Class definitions
+***********************************************************************************************************************/
 namespace FikoEngine
 {
-    enum class VulkanInstanceStatus
+    enum class DebugMessangerStatus
     {
-        Success,
         Fail,
         Created,
         Destroyed
     };
+}
 
-    Result<VulkanInstanceStatus, vk::Instance> CreateInstance( VulkanSpec spec);
+/***********************************************************************************************************************
+Class definitions
+***********************************************************************************************************************/
+
+namespace FikoEngine
+{
+    class DebugMessanger
+    {
+    public:
+        DebugMessanger() = default;
+        ~DebugMessanger() = default;
+
+    public:
+        static Result<DebugMessangerStatus> Create( vk::Instance& instance );
+        static void Destroy( vk::Instance& instance );
+        static DebugMessanger* Get();
+        static bool IsDebugExtensionAvailable();
+
+    public:
+        Result<DebugMessangerStatus> Init( vk::Instance& instance );
+
+    private:
+        vk::DebugUtilsMessengerEXT m_VkDebugMessanger;
+
+    public:
+        static DebugMessanger* s_DebugMessanger;
+    };
 }// namespace FikoEngine

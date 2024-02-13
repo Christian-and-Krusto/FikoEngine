@@ -40,6 +40,7 @@ set(GLFW_INCLUDE_DIR "./vendor/glfw-3.3.4/include")
 set(VULKAN_INCLUDE_DIR         "C:/VulkanSDK/1.3.261.1/Include")
 set(${PROJECT_NAME}_INCLUDE_DIR "./${PROJECT_NAME}Lib/src")
 
+target_compile_definitions(${PROJECT_NAME}Lib PRIVATE VULKAN_HPP_NO_EXCEPTIONS)
 if (WIN32)
     target_compile_definitions(${PROJECT_NAME}Lib PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
 else ()

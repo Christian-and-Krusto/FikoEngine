@@ -44,20 +44,24 @@ Includes
 #include <Core/Result.hpp>
 
 /***********************************************************************************************************************
+Enum Class definitions
+***********************************************************************************************************************/
+enum class RendererContextStatus
+{
+    Success,
+    Fail,
+    Created,
+    Initialized,
+    Not_Initialized,
+    Destroyed
+};
+
+/***********************************************************************************************************************
 Class definitions
 ***********************************************************************************************************************/
 
 namespace FikoEngine
 {
-    enum class RendererContextStatus
-    {
-        Success,
-        Fail,
-        Created,
-        Initialized,
-        Not_Initialized,
-        Destroyed
-    };
 
     class RendererContext
     {

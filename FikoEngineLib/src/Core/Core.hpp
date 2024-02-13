@@ -3,11 +3,3 @@
 //
 #pragma once
 #include "Log.hpp"
-//TODO: When vulan is added remove comment
-//TODO: When vulan is added remove comment
-//TODO: When vulan is added remove comment
-//TODO: When vulan is added remove comment
-//TODO: When vulan is added remove comment
-//TODO: When vulan is added remove comment
-//TODO: When vulan is added remove comment
-// #define VK_CHECK(x) assert(VK_SUCCESS == (x));

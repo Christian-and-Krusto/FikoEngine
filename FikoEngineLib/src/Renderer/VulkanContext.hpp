@@ -32,55 +32,84 @@
  * 
  * @section DESCRIPTION
  * 
- * Window class definition
+ * VulkanInstance class definition
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "RendererSpec.hpp"
+#include "CommandPool.hpp"
+#include "VulkanSpec.hpp"
+
+
 #include <Core/Result.hpp>
-#include <GLFW/glfw3.h>
-#include <vector>
+#include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
 Enum Class definitions
 ***********************************************************************************************************************/
-enum class WindowStatus
+namespace FikoEngine
 {
-    Success,
-    Fail,
-    Created,
-    Initialized,
-    Not_Initialized,
-    Destroyed
-};
+    enum class VulkanContextStatus
+    {
+        Fail,
+        Created,
+        Destroyed
+    };
+    enum class VulkanDeviceStatus
+    {
+        Fail,
+        Created,
+        Destroyed
+    };
+    enum class VulkanPhysicalDeviceStatus
+    {
+        Unknown,
+        Selected,
+        Not_Found
+    };
+    enum class VulkanInstanceStatus
+    {
+        Success,
+        Fail,
+        Created,
+        Destroyed
+    };
+}// namespace FikoEngine
 
 /***********************************************************************************************************************
-Class definitions
+Structure definitions
 ***********************************************************************************************************************/
 
 namespace FikoEngine
 {
 
-    class Window
+    class VulkanContext
     {
     public:
-        Window() = default;
-        ~Window();
+        VulkanContext() = default;
+        VulkanContext( VulkanSpec spec );
 
-    public:
-        Result<WindowStatus> Init( RendererSpec& rendererSpec );
-
-    public:
-        static Result<WindowStatus, Window*> Create( RendererSpec& rendererSpec );
-        static Result<WindowStatus> Destroy( Window* window );
-
-        static Result<bool, std::vector<std::string>> GetRequiredExtensions();
+        Result<VulkanInstanceStatus> CreateInstance();
+        Result<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
+        Result<VulkanDeviceStatus> CreateDevice();
 
     private:
-        RendererSpec m_RendererSpec;
-        GLFWwindow* m_WindowPtr;
+        VulkanSpec m_Spec;
+        vk::Instance m_Instance;
+        vk::PhysicalDevice m_PhysicalDevice;
+        vk::Device m_Device;
+        CommandPool* m_CommandPool;
+
+        uint32_t m_GraphicsQueueIndex{};
+
+    public:
+        static Result<VulkanContextStatus> Create( VulkanSpec spec );
+        static Result<VulkanContextStatus> Destroy();
+        static VulkanContext* Get();
+
+    private:
+        static VulkanContext* s_VulkanContext;
     };
 }// namespace FikoEngine

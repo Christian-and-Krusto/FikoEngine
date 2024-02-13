@@ -52,5 +52,7 @@ namespace FikoEngine
     {
         StatusType status;
         RetValueType returnValue;
+
+        operator StatusType() { return status; }
     };
 }// namespace FikoEngine

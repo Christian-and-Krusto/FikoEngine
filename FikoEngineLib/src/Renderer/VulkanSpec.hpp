@@ -43,6 +43,7 @@ Includes
 #include <vector>
 
 #include "RendererSpec.hpp"
+
 /***********************************************************************************************************************
 Structure definitions
 ***********************************************************************************************************************/
@@ -51,7 +52,7 @@ namespace FikoEngine
 {
     struct VulkanSpec {
         RendererSpec rendererSpec;
-        std::vector<std::string_view> layers;
+        std::vector<std::string> extensions;
     };
 
 }// namespace FikoEngine
