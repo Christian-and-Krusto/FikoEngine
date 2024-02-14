@@ -117,10 +117,12 @@ namespace FikoEngine
 
         if ( CommandBufferState::Initial != m_VkCommandBuffers[ id ].first ) { return { CommandBufferState::Invalid }; }
 
-        m_VkCommandBuffers[ id ].second.begin(
+        auto bufferStatus = m_VkCommandBuffers[ id ].second.begin(
                 vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlagBits::eOneTimeSubmit ) );
-        m_VkCommandBuffers[ id ].first = CommandBufferState::Recording;
 
+        if ( vk::Result::eSuccess != bufferStatus ) { return { CommandBufferState::Invalid }; }
+
+        m_VkCommandBuffers[ id ].first = CommandBufferState::Recording;
         return { CommandBufferState::Recording };
     }
 
@@ -132,9 +134,10 @@ namespace FikoEngine
             return { CommandBufferState::Invalid };
         }
 
-        m_VkCommandBuffers[ id ].second.end();
+        auto bufferStatus = m_VkCommandBuffers[ id ].second.end();
+        if ( vk::Result::eSuccess != bufferStatus ) { return { CommandBufferState::Invalid }; }
+        
         m_VkCommandBuffers[ id ].first = CommandBufferState::Executable;
-
         return { CommandBufferState::Executable };
     }
 

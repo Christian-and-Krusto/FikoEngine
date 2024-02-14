@@ -76,6 +76,11 @@ namespace FikoEngine
         Created,
         Destroyed
     };
+    enum class VulkanQueueFamilyStatus
+    {
+        Found,
+        Not_Found,
+    };
 }// namespace FikoEngine
 
 /***********************************************************************************************************************
@@ -84,28 +89,32 @@ Structure definitions
 
 namespace FikoEngine
 {
+    class Window;
 
     class VulkanContext
     {
     public:
         VulkanContext() = default;
-        VulkanContext( VulkanSpec spec );
+        VulkanContext( VulkanSpec spec, Window* windowPtr );
 
         Result<VulkanInstanceStatus> CreateInstance();
         Result<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
         Result<VulkanDeviceStatus> CreateDevice();
+        Result<VulkanQueueFamilyStatus> SelectQueueFamily();
 
     private:
-        VulkanSpec m_Spec;
-        vk::Instance m_Instance;
-        vk::PhysicalDevice m_PhysicalDevice;
-        vk::Device m_Device;
-        CommandPool* m_CommandPool;
-
+        Window* m_WindowPtr{};
+        VulkanSpec m_Spec{};
+        vk::Instance m_Instance{};
+        vk::PhysicalDevice m_PhysicalDevice{};
+        vk::Device m_Device{};
+        vk::SurfaceKHR m_Surface{};
+        CommandPool* m_CommandPool{};
         uint32_t m_GraphicsQueueIndex{};
+        uint32_t m_PresentQueueIndex{};
 
     public:
-        static Result<VulkanContextStatus> Create( VulkanSpec spec );
+        static Result<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );
         static Result<VulkanContextStatus> Destroy();
         static VulkanContext* Get();
 

@@ -40,7 +40,6 @@ Includes
 #include "Window.hpp"
 #include <Core/Log.hpp>
 
-#include <vulkan/vulkan.h>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
@@ -84,6 +83,41 @@ namespace FikoEngine
         return { WindowStatus::Created };
     }
 
+    Result<WindowStatus> Window::CreateSurface( vk::Instance instance )
+    {
+        WindowStatus status = WindowStatus::Fail;
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+        auto resultValue = instance.createWin32SurfaceKHR(
+                vk::Win32SurfaceCreateInfoKHR( {}, GetModuleHandle( NULL ), glfwGetWin32Window( m_WindowPtr ) ) );
+        if ( vk::Result::eSuccess == resultValue.result ) {
+            status = WindowStatus::Surface_Created;
+            m_Surface = resultValue.value;
+        }
+#else
+        LOG_ERROR("Non Windows platforms not supported at the moment!");
+#endif
+
+        return {status};
+    }
+    
+    Result<WindowStatus> Window::DestroySurface(vk::Instance instance)
+    {
+        instance.destroySurfaceKHR(m_Surface);
+
+        return {WindowStatus::Surface_Destroyed};
+    }
+    
+    Result<WindowStatus,vk::SurfaceKHR> Window::GetSurface()
+    {
+        if ( VK_NULL_HANDLE == (VkSurfaceKHR)m_Surface)
+        {
+            return {WindowStatus::Fail};
+        }
+
+        return {WindowStatus::Success,m_Surface};
+    }
+
     Window::~Window() { LOG_INFO( "Destroyed Window" ); }
 
     Result<WindowStatus, Window*> Window::Create( RendererSpec& rendererSpec )
@@ -121,4 +155,5 @@ namespace FikoEngine
 
         return { true, output };
     }
+
 }// namespace FikoEngine

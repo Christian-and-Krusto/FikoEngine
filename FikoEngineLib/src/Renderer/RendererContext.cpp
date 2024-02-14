@@ -70,7 +70,7 @@ namespace FikoEngine
     Result<RendererContextStatus> RendererContext::Init( RendererSpec& rendererSpec )
     {
         glfwInit();
-        LOG_INFO( "Created RendererContext" );
+        LOG_INFO( "Creating RendererContext!" );
         auto result = Window::Create( rendererSpec );
         uint32_t tries = 0, maxTries = 3;
         while ( result.status != WindowStatus::Created && tries < maxTries )
@@ -79,16 +79,20 @@ namespace FikoEngine
             tries++;
         }
 
-        auto vkContextResult =
-                VulkanContext::Create( VulkanSpec{ rendererSpec, Window::GetRequiredExtensions().returnValue } );
-        if ( VulkanContextStatus::Created != vkContextResult.status ) { return { RendererContextStatus::Fail }; }
+        auto vkContextResult = VulkanContext::Create(
+                VulkanSpec{ rendererSpec, Window::GetRequiredExtensions().returnValue }, result.returnValue );
+        if ( VulkanContextStatus::Created != vkContextResult.status )
+        {
+            LOG_ERROR( "Could not create Vulkan Context!" );
+            return { RendererContextStatus::Fail };
+        }
 
         if ( result.status == WindowStatus::Created )
         {
             m_Window = result.returnValue;
             return { RendererContextStatus::Initialized };
         }
-        else { return { RendererContextStatus::Fail }; }
+        return { RendererContextStatus::Fail };
     }
 
     Result<RendererContextStatus> RendererContext::Create( RendererSpec& rendererSpec )

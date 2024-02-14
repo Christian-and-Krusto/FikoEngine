@@ -43,6 +43,8 @@ Includes
 #include <Core/Result.hpp>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <vulkan/vulkan.hpp>
+
 
 /***********************************************************************************************************************
 Enum Class definitions
@@ -54,7 +56,9 @@ enum class WindowStatus
     Created,
     Initialized,
     Not_Initialized,
-    Destroyed
+    Destroyed,
+    Surface_Created,
+    Surface_Destroyed
 };
 
 /***********************************************************************************************************************
@@ -72,6 +76,9 @@ namespace FikoEngine
 
     public:
         Result<WindowStatus> Init( RendererSpec& rendererSpec );
+        Result<WindowStatus> CreateSurface( vk::Instance instance );
+        Result<WindowStatus> DestroySurface( vk::Instance instance );
+        Result<WindowStatus,vk::SurfaceKHR> GetSurface();
 
     public:
         static Result<WindowStatus, Window*> Create( RendererSpec& rendererSpec );
@@ -79,8 +86,11 @@ namespace FikoEngine
 
         static Result<bool, std::vector<std::string>> GetRequiredExtensions();
 
-    private:
+    private: 
+        
         RendererSpec m_RendererSpec;
         GLFWwindow* m_WindowPtr;
+        vk::SurfaceKHR m_Surface;
+
     };
 }// namespace FikoEngine

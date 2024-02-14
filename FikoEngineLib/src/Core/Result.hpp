@@ -47,12 +47,19 @@ Class definitions
 
 namespace FikoEngine
 {
-    template<typename StatusType,typename RetValueType = uint32_t>
-    struct Result
-    {
+    template <typename StatusType, typename RetValueType = uint32_t>
+    struct Result {
         StatusType status;
         RetValueType returnValue;
 
         operator StatusType() { return status; }
+
+        operator const StatusType() const { return status; }
+
+        operator RetValueType() { return returnValue; }
+
+        operator const RetValueType() const { return returnValue; }
+
+        
     };
 }// namespace FikoEngine

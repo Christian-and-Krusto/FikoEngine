@@ -39,6 +39,7 @@ Includes
 ***********************************************************************************************************************/
 #include "VulkanContext.hpp"
 #include "DebugMessanger.hpp"
+#include "Window.hpp"
 
 #include <Core/EngineInfo.hpp>
 #include <Core/Log.hpp>
@@ -69,28 +70,44 @@ VulkanContext Class Implementation
 namespace FikoEngine
 {
 
-    Result<VulkanContextStatus> VulkanContext::Create( VulkanSpec spec )
+    Result<VulkanContextStatus> VulkanContext::Create( VulkanSpec spec, Window* windowPtr )
     {
-        VulkanContext::s_VulkanContext = new VulkanContext( spec );
+        VulkanContext::s_VulkanContext = new VulkanContext( spec, windowPtr );
         auto vulkanContextPtr = VulkanContext::Get();
 
+        //Create Instance
         if ( VulkanInstanceStatus::Created != vulkanContextPtr->CreateInstance() )
         {
+            LOG_ERROR( "Could not create Vulkan Instance!" );
             return { VulkanContextStatus::Fail };
         }
 
+        //Create Debug Callback
         DebugMessanger::Create( VulkanContext::Get()->m_Instance );
 
+        //Create Window Surface
+        auto surfaceStatus = windowPtr->CreateSurface( vulkanContextPtr->m_Instance );
+        if ( WindowStatus::Surface_Created != surfaceStatus )
+        {
+            LOG_ERROR( "Could Not Create Window Surface!" );
+            return { VulkanContextStatus::Fail };
+        }
+        vulkanContextPtr->m_Surface = windowPtr->GetSurface().returnValue;
+        LOG_INFO( "Created Window Surface!" );
+
+        //Select Physical Device
         if ( VulkanPhysicalDeviceStatus::Selected != vulkanContextPtr->SelectPhysicalDevice() )
         {
             return { VulkanContextStatus::Fail };
         }
 
+        //Create Logical Device
         if ( VulkanDeviceStatus::Created != vulkanContextPtr->CreateDevice() ) { return { VulkanContextStatus::Fail }; }
 
+        //Create Command Pool
         auto result = CommandPool::Create( &vulkanContextPtr->m_Device, vulkanContextPtr->m_GraphicsQueueIndex );
-
         VulkanContext::Get()->m_CommandPool = result.returnValue;
+
 
         LOG_INFO( "Vulkan Context Created!" );
         return { VulkanContextStatus::Created };
@@ -105,6 +122,9 @@ namespace FikoEngine
         vulkanCtxPtr->m_Device.destroy();
         LOG_INFO( "Destroyed Logical Device" );
 
+        auto windowSurfaceStatus = vulkanCtxPtr->m_WindowPtr->DestroySurface( vulkanCtxPtr->m_Instance );
+        if ( WindowStatus::Surface_Destroyed == windowSurfaceStatus ) { LOG_INFO( "Destroyed Window Surface" ); }
+
         DebugMessanger::Destroy( vulkanCtxPtr->m_Instance );
 
         vulkanCtxPtr->m_Instance.destroy();
@@ -118,7 +138,7 @@ namespace FikoEngine
 
     VulkanContext* VulkanContext::Get() { return VulkanContext::s_VulkanContext; }
 
-    VulkanContext::VulkanContext( VulkanSpec spec ) : m_Spec( spec ) {}
+    VulkanContext::VulkanContext( VulkanSpec spec, Window* windowPtr ) : m_WindowPtr( windowPtr ), m_Spec( spec ) {}
 
     Result<VulkanInstanceStatus> VulkanContext::CreateInstance()
     {
@@ -189,9 +209,15 @@ namespace FikoEngine
             if ( enumeratedDevices.size() > 0 )
             {
                 m_PhysicalDevice = enumeratedDevices[ 0 ];
+
+                LOG_INFO( "Selected Physical Device!" );
                 return { VulkanPhysicalDeviceStatus::Selected };
             }
-            else { return { VulkanPhysicalDeviceStatus::Not_Found }; }
+            else
+            {
+                LOG_ERROR( "Physical Device Not Found!" );
+                return { VulkanPhysicalDeviceStatus::Not_Found };
+            }
         }
 
         std::string selectedDevice = std::string( m_PhysicalDevice.getProperties().deviceName );
@@ -200,30 +226,78 @@ namespace FikoEngine
         return { VulkanPhysicalDeviceStatus::Selected };
     }
 
-    Result<VulkanDeviceStatus> VulkanContext::CreateDevice()
+    Result<VulkanQueueFamilyStatus> VulkanContext::SelectQueueFamily()
     {
         std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_PhysicalDevice.getQueueFamilyProperties();
 
+        //Find Graphics Queue Index
         auto propertyIterator = std::find_if(
                 queueFamilyProperties.begin(), queueFamilyProperties.end(),
                 []( vk::QueueFamilyProperties const& qfp ) { return qfp.queueFlags & vk::QueueFlagBits::eGraphics; } );
         size_t graphicsQueueFamilyIndex = std::distance( queueFamilyProperties.begin(), propertyIterator );
+        if ( graphicsQueueFamilyIndex >= queueFamilyProperties.size() )
+        {
+            LOG_ERROR( "Queues Not Found!" );
+            return { VulkanQueueFamilyStatus::Not_Found };
+        }
 
-        if ( graphicsQueueFamilyIndex >= queueFamilyProperties.size() ) { return { VulkanDeviceStatus::Fail }; }
+        size_t presentQueueFamilyIndex = m_PhysicalDevice.getSurfaceSupportKHR( m_GraphicsQueueIndex, m_Surface ).value
+                                                 ? graphicsQueueFamilyIndex
+                                                 : queueFamilyProperties.size();
 
+        if ( presentQueueFamilyIndex != queueFamilyProperties.size() ) { return { VulkanQueueFamilyStatus::Found }; }
+
+        // the graphicsQueueFamilyIndex doesn't support present -> look for an other family index that supports both
+        // graphics and present
+        for ( size_t i = 0; i < queueFamilyProperties.size(); i++ )
+        {
+            if ( ( queueFamilyProperties[ i ].queueFlags & vk::QueueFlagBits::eGraphics ) &&
+                 m_PhysicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>( i ), m_Surface ).value )
+            {
+                graphicsQueueFamilyIndex = i;
+                presentQueueFamilyIndex = i;
+                break;
+            }
+        }
+        if ( presentQueueFamilyIndex == queueFamilyProperties.size() )
+        {
+            // there's nothing like a single family index that supports both graphics and present -> look for an other
+            // family index that supports present
+            for ( size_t i = 0; i < queueFamilyProperties.size(); i++ )
+            {
+                if ( m_PhysicalDevice.getSurfaceSupportKHR( static_cast<uint32_t>( i ), m_Surface ).value )
+                {
+                    presentQueueFamilyIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if ( presentQueueFamilyIndex == queueFamilyProperties.size() )
+        {
+            LOG_ERROR( "Queues Not Found!" );
+            return { VulkanQueueFamilyStatus::Not_Found };
+        }
+
+        m_PresentQueueIndex = presentQueueFamilyIndex;
         m_GraphicsQueueIndex = graphicsQueueFamilyIndex;
 
-        float queuePriority = 0.0f;
-        vk::DeviceQueueCreateInfo deviceQueueCreateInfo(
-                vk::DeviceQueueCreateFlags(), static_cast<uint32_t>( graphicsQueueFamilyIndex ), 1, &queuePriority );
+        LOG_INFO( "Selected Queues!" );
 
+        return { VulkanQueueFamilyStatus::Found };
+    }
+
+    Result<VulkanDeviceStatus> VulkanContext::CreateDevice()
+    {
+        float queuePriority = 0.0f;
+        vk::DeviceQueueCreateInfo deviceQueueCreateInfo( vk::DeviceQueueCreateFlags(), m_GraphicsQueueIndex, 1,
+                                                         &queuePriority );
 
         m_Device =
                 m_PhysicalDevice.createDevice( vk::DeviceCreateInfo( vk::DeviceCreateFlags(), deviceQueueCreateInfo ) )
                         .value;
 
         LOG_INFO( "Logical Device Created" );
-
         return { VulkanDeviceStatus::Created };
     }
 
