@@ -104,6 +104,11 @@ namespace FikoEngine
         //Create Logical Device
         if ( VulkanDeviceStatus::Created != vulkanContextPtr->CreateDevice() ) { return { VulkanContextStatus::Fail }; }
 
+        if ( VulkanSwapchainStatus::Created != vulkanContextPtr->CreateSwapchain() )
+        {
+            return { VulkanContextStatus::Fail };
+        }
+
         //Create Command Pool
         auto result = CommandPool::Create( &vulkanContextPtr->m_Device, vulkanContextPtr->m_GraphicsQueueIndex );
         VulkanContext::Get()->m_CommandPool = result.returnValue;
@@ -118,6 +123,9 @@ namespace FikoEngine
         auto vulkanCtxPtr = VulkanContext::Get();
 
         CommandPool::Destroy( vulkanCtxPtr->m_CommandPool );
+
+        vulkanCtxPtr->m_Device.destroySwapchainKHR(vulkanCtxPtr->m_Swapchain);
+        LOG_INFO("Destroyed Swapchain!");
 
         vulkanCtxPtr->m_Device.destroy();
         LOG_INFO( "Destroyed Logical Device" );
@@ -287,16 +295,151 @@ namespace FikoEngine
         return { VulkanQueueFamilyStatus::Found };
     }
 
+    Result<VulkanSwapchainStatus> VulkanContext::GetCapabilities()
+    {
+        auto surfaceFormatStatus = m_PhysicalDevice.getSurfaceFormatsKHR( m_Surface );
+        if ( vk::Result::eSuccess != surfaceFormatStatus.result )
+        {
+            LOG_ERROR( "Can Not Retrieve Surface Formats!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+
+        m_SupportedFormats = surfaceFormatStatus.value;
+        if ( m_SupportedFormats.empty() )
+        {
+            LOG_ERROR( "Surface Formats Not Available!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+
+        m_Format = m_SupportedFormats[ 0 ].format;
+        if ( vk::Format::eUndefined == m_SupportedFormats[ 0 ].format ) { m_Format = vk::Format::eB8G8R8A8Unorm; }
+
+        auto surfaceCapabilitiesStatus = m_PhysicalDevice.getSurfaceCapabilitiesKHR( m_Surface );
+        if ( vk::Result::eSuccess != surfaceCapabilitiesStatus.result )
+        {
+            LOG_ERROR( "Can Not Retrieve Surface Capabilities!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+
+        m_SurfaceCapabilities = surfaceCapabilitiesStatus.value;
+
+        if ( m_SurfaceCapabilities.currentExtent.width == std::numeric_limits<uint32_t>::max() )
+        {
+            m_SwapchainExtent.width = std::clamp( m_Spec.rendererSpec.width, m_SurfaceCapabilities.minImageExtent.width,
+                                                  m_SurfaceCapabilities.maxImageExtent.width );
+            m_SwapchainExtent.height =
+                    std::clamp( m_Spec.rendererSpec.height, m_SurfaceCapabilities.minImageExtent.height,
+                                m_SurfaceCapabilities.maxImageExtent.height );
+        }
+        else { m_SwapchainExtent = m_SurfaceCapabilities.currentExtent; }
+
+        return { VulkanSwapchainStatus::Success };
+    }
+
+    Result<VulkanSwapchainStatus> VulkanContext::CreateSwapchain()
+    {
+
+        auto queueFamilyStatus = SelectQueueFamily();
+        if ( VulkanQueueFamilyStatus::Found != queueFamilyStatus )
+        {
+            LOG_ERROR( "Swapchain Can Not Find Queue Family Indices!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+
+        auto capabilitiesStatus = GetCapabilities();
+        if ( VulkanSwapchainStatus::Success != capabilitiesStatus )
+        {
+            LOG_ERROR( "Swapchain Can Not Get Capabiliteis!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+
+        vk::PresentModeKHR swapchainPresentMode = vk::PresentModeKHR::eFifo;
+
+        vk::SurfaceTransformFlagBitsKHR preTransform =
+                ( m_SurfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity )
+                        ? vk::SurfaceTransformFlagBitsKHR::eIdentity
+                        : m_SurfaceCapabilities.currentTransform;
+
+        vk::CompositeAlphaFlagBitsKHR compositeAlpha =
+                ( m_SurfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePreMultiplied )
+                        ? vk::CompositeAlphaFlagBitsKHR::ePreMultiplied
+                : ( m_SurfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::ePostMultiplied )
+                        ? vk::CompositeAlphaFlagBitsKHR::ePostMultiplied
+                : ( m_SurfaceCapabilities.supportedCompositeAlpha & vk::CompositeAlphaFlagBitsKHR::eInherit )
+                        ? vk::CompositeAlphaFlagBitsKHR::eInherit
+                        : vk::CompositeAlphaFlagBitsKHR::eOpaque;
+
+        vk::SwapchainCreateInfoKHR swapChainCreateInfo(
+                {}, m_Surface,
+                std::clamp( 3u, m_SurfaceCapabilities.minImageCount, m_SurfaceCapabilities.maxImageCount ), m_Format,
+                vk::ColorSpaceKHR::eSrgbNonlinear, m_SwapchainExtent, 1, vk::ImageUsageFlagBits::eColorAttachment,
+                vk::SharingMode::eExclusive, {}, preTransform, compositeAlpha, swapchainPresentMode, true, nullptr );
+
+        uint32_t queueFamilyIndices[ 2 ] = { static_cast<uint32_t>( m_GraphicsQueueIndex ),
+                                             static_cast<uint32_t>( m_PresentQueueIndex ) };
+        if ( m_GraphicsQueueIndex != m_PresentQueueIndex )
+        {
+            swapChainCreateInfo.imageSharingMode = vk::SharingMode::eConcurrent;
+            swapChainCreateInfo.queueFamilyIndexCount = 2;
+            swapChainCreateInfo.pQueueFamilyIndices = queueFamilyIndices;
+        }
+
+        auto swapchainStatus = m_Device.createSwapchainKHR( swapChainCreateInfo );
+        if ( vk::Result::eSuccess != swapchainStatus.result )
+        {
+            LOG_ERROR( "Can Not Create Swapchain!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+        m_Swapchain = swapchainStatus.value;
+        
+        LOG_INFO( "Created Swapchain!" );
+        return { VulkanSwapchainStatus::Created };
+    }
+
     Result<VulkanDeviceStatus> VulkanContext::CreateDevice()
     {
+        auto availableExtensionsStatus = m_PhysicalDevice.enumerateDeviceExtensionProperties();
+        if ( vk::Result::eSuccess != availableExtensionsStatus.result )
+        {
+            LOG_ERROR( "Can Not Retrieve Available Device Extensions!" );
+            return { VulkanDeviceStatus::Fail };
+        }
+        auto availableExtensions = availableExtensionsStatus.value;
+
+        auto propertyIterator =
+                std::find_if( availableExtensions.begin(), availableExtensions.end(),
+                              []( vk::ExtensionProperties const& properties ) {
+                                  return std::string( properties.extensionName ) == std::string( "VK_KHR_swapchain" );
+                              } );
+        if ( availableExtensions.end() == propertyIterator )
+        {
+            LOG_ERROR( "Device Swapchain Extension Not Available!" );
+            return { VulkanDeviceStatus::Fail };
+        }
+
         float queuePriority = 0.0f;
-        vk::DeviceQueueCreateInfo deviceQueueCreateInfo( vk::DeviceQueueCreateFlags(), m_GraphicsQueueIndex, 1,
-                                                         &queuePriority );
+        VkDeviceQueueCreateInfo deviceQueueCreateInfo = {};
+        deviceQueueCreateInfo.queueFamilyIndex = m_GraphicsQueueIndex;
+        deviceQueueCreateInfo.queueCount = 1;
+        deviceQueueCreateInfo.pQueuePriorities = &queuePriority;
 
-        m_Device =
-                m_PhysicalDevice.createDevice( vk::DeviceCreateInfo( vk::DeviceCreateFlags(), deviceQueueCreateInfo ) )
-                        .value;
+        const std::vector<const char*> deviceExtensions = { "VK_KHR_swapchain" };
+        VkDeviceCreateInfo createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        createInfo.queueCreateInfoCount = 1;
+        createInfo.pQueueCreateInfos = &deviceQueueCreateInfo;
+        createInfo.enabledExtensionCount = 1;
+        createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
+        auto deviceStatus = m_PhysicalDevice.createDevice( createInfo );
+
+        if ( vk::Result::eSuccess != deviceStatus.result )
+        {
+            LOG_ERROR( "Can Not Create Logical Device!" );
+            return { VulkanDeviceStatus::Fail };
+        }
+
+        m_Device = deviceStatus.value;
         LOG_INFO( "Logical Device Created" );
         return { VulkanDeviceStatus::Created };
     }

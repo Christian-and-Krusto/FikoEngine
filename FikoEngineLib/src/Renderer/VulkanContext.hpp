@@ -76,6 +76,13 @@ namespace FikoEngine
         Created,
         Destroyed
     };
+    enum class VulkanSwapchainStatus
+    {
+        Success,
+        Fail,
+        Created,
+        Destroyed
+    };
     enum class VulkanQueueFamilyStatus
     {
         Found,
@@ -97,10 +104,14 @@ namespace FikoEngine
         VulkanContext() = default;
         VulkanContext( VulkanSpec spec, Window* windowPtr );
 
+    private:
+
         Result<VulkanInstanceStatus> CreateInstance();
         Result<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
         Result<VulkanDeviceStatus> CreateDevice();
         Result<VulkanQueueFamilyStatus> SelectQueueFamily();
+        Result<VulkanSwapchainStatus> CreateSwapchain();
+        Result<VulkanSwapchainStatus> GetCapabilities();
 
     private:
         Window* m_WindowPtr{};
@@ -108,10 +119,15 @@ namespace FikoEngine
         vk::Instance m_Instance{};
         vk::PhysicalDevice m_PhysicalDevice{};
         vk::Device m_Device{};
+        vk::SwapchainKHR m_Swapchain{};
         vk::SurfaceKHR m_Surface{};
         CommandPool* m_CommandPool{};
         uint32_t m_GraphicsQueueIndex{};
         uint32_t m_PresentQueueIndex{};
+        std::vector<vk::SurfaceFormatKHR> m_SupportedFormats;
+        vk::SurfaceCapabilitiesKHR m_SurfaceCapabilities;
+        vk::Format m_Format;
+        vk::Extent2D m_SwapchainExtent;
 
     public:
         static Result<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );
