@@ -32,17 +32,13 @@
  * 
  * @section DESCRIPTION
  * 
- * VulkanInstance class definition
+ * UniformBuffer class definition
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "CommandPool.hpp"
-#include "VulkanSpec.hpp"
-#include "Image.hpp"
-
 #include <Core/Result.hpp>
 #include <vulkan/vulkan.hpp>
 
@@ -51,93 +47,41 @@ Enum Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    enum class VulkanContextStatus
+    enum class UniformBufferStatus
     {
         Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanDeviceStatus
-    {
-        Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanPhysicalDeviceStatus
-    {
-        Unknown,
-        Selected,
-        Not_Found
-    };
-    enum class VulkanInstanceStatus
-    {
-        Success,
-        Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanSwapchainStatus
-    {
-        Success,
-        Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanQueueFamilyStatus
-    {
-        Found,
-        Not_Found,
+        Success
     };
 }// namespace FikoEngine
 
 /***********************************************************************************************************************
-Structure definitions
+Struct definitions
+***********************************************************************************************************************/
+namespace FikoEngine
+{
+}// namespace FikoEngine
+
+/***********************************************************************************************************************
+Class definitions
 ***********************************************************************************************************************/
 
 namespace FikoEngine
 {
-    class Window;
 
-    class VulkanContext
+    class UniformBuffer
     {
     public:
-        VulkanContext() = default;
-        VulkanContext( VulkanSpec spec, Window* windowPtr );
-
-    private:
-
-        Result<VulkanInstanceStatus> CreateInstance();
-        Result<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
-        Result<VulkanDeviceStatus> CreateDevice();
-        Result<VulkanQueueFamilyStatus> SelectQueueFamily();
-        Result<VulkanSwapchainStatus> CreateSwapchain();
-        Result<VulkanSwapchainStatus> GetCapabilities();
-
-    private:
-        Window* m_WindowPtr{};
-        VulkanSpec m_Spec{};
-        vk::Instance m_Instance{};
-        vk::PhysicalDevice m_PhysicalDevice{};
-        vk::Device m_Device{};
-        vk::SwapchainKHR m_Swapchain{};
-        vk::SurfaceKHR m_Surface{};
-        CommandPool* m_CommandPool{};
-        uint32_t m_GraphicsQueueIndex{};
-        uint32_t m_PresentQueueIndex{};
-        std::vector<vk::SurfaceFormatKHR> m_SupportedFormats;
-        vk::SurfaceCapabilitiesKHR m_SurfaceCapabilities;
-        vk::Format m_Format;
-        vk::Extent2D m_SwapchainExtent;
-        std::vector<vk::Image> m_Images;
-        std::vector<vk::ImageView> m_ImageViews;
-        Image m_DepthImage;
+        UniformBuffer() = default;
+        ~UniformBuffer() = default;
 
     public:
-        static Result<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );
-        static Result<VulkanContextStatus> Destroy();
-        static VulkanContext* Get();
+        Result<UniformBufferStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, uint32_t size,
+                                          uint8_t* data );
+        Result<UniformBufferStatus, vk::Buffer> GetBufferHandle();
+        Result<UniformBufferStatus> Destroy( vk::Device device );
 
     private:
-        static VulkanContext* s_VulkanContext;
+        vk::Buffer m_Buffer;
+        vk::DeviceMemory m_BufferMemory;
     };
 }// namespace FikoEngine

@@ -32,112 +32,70 @@
  * 
  * @section DESCRIPTION
  * 
- * VulkanInstance class definition
+ * Image class definition
  */
 
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "CommandPool.hpp"
-#include "VulkanSpec.hpp"
-#include "Image.hpp"
-
-#include <Core/Result.hpp>
 #include <vulkan/vulkan.hpp>
+#include <Core/Result.hpp>
 
 /***********************************************************************************************************************
 Enum Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    enum class VulkanContextStatus
+    enum class ImageType{
+        None,
+        Depth,
+        Color
+    };
+    enum class ImageStatus
     {
         Fail,
-        Created,
-        Destroyed
+        Success
     };
-    enum class VulkanDeviceStatus
-    {
-        Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanPhysicalDeviceStatus
-    {
-        Unknown,
-        Selected,
-        Not_Found
-    };
-    enum class VulkanInstanceStatus
-    {
-        Success,
-        Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanSwapchainStatus
-    {
-        Success,
-        Fail,
-        Created,
-        Destroyed
-    };
-    enum class VulkanQueueFamilyStatus
-    {
-        Found,
-        Not_Found,
-    };
-}// namespace FikoEngine
+}
 
 /***********************************************************************************************************************
-Structure definitions
+Struct definitions
+***********************************************************************************************************************/
+namespace FikoEngine
+{
+    struct ImageSpec
+    {
+        ImageType type;
+        vk::Format format;
+        vk::Extent2D extent;
+    };
+}
+/***********************************************************************************************************************
+Class definitions
 ***********************************************************************************************************************/
 
 namespace FikoEngine
 {
-    class Window;
 
-    class VulkanContext
+    class Image
     {
     public:
-        VulkanContext() = default;
-        VulkanContext( VulkanSpec spec, Window* windowPtr );
-
-    private:
-
-        Result<VulkanInstanceStatus> CreateInstance();
-        Result<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
-        Result<VulkanDeviceStatus> CreateDevice();
-        Result<VulkanQueueFamilyStatus> SelectQueueFamily();
-        Result<VulkanSwapchainStatus> CreateSwapchain();
-        Result<VulkanSwapchainStatus> GetCapabilities();
-
-    private:
-        Window* m_WindowPtr{};
-        VulkanSpec m_Spec{};
-        vk::Instance m_Instance{};
-        vk::PhysicalDevice m_PhysicalDevice{};
-        vk::Device m_Device{};
-        vk::SwapchainKHR m_Swapchain{};
-        vk::SurfaceKHR m_Surface{};
-        CommandPool* m_CommandPool{};
-        uint32_t m_GraphicsQueueIndex{};
-        uint32_t m_PresentQueueIndex{};
-        std::vector<vk::SurfaceFormatKHR> m_SupportedFormats;
-        vk::SurfaceCapabilitiesKHR m_SurfaceCapabilities;
-        vk::Format m_Format;
-        vk::Extent2D m_SwapchainExtent;
-        std::vector<vk::Image> m_Images;
-        std::vector<vk::ImageView> m_ImageViews;
-        Image m_DepthImage;
+        Image() = default;
+        ~Image();
 
     public:
-        static Result<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );
-        static Result<VulkanContextStatus> Destroy();
-        static VulkanContext* Get();
+        Result<ImageStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, ImageSpec imageSpec );
+        Result<ImageStatus, vk::Image> GetImage();
+        Result<ImageStatus, vk::ImageView> GetImageView();
+        Result<ImageStatus, ImageSpec> GetImageSpec();
+        Result<ImageStatus> Destroy(vk::Device device);
 
     private:
-        static VulkanContext* s_VulkanContext;
+        vk::Image m_Image;
+        vk::ImageView m_ImageView;
+        vk::DeviceMemory m_Memory;
+
+        ImageSpec m_ImageSpec;
     };
 }// namespace FikoEngine

@@ -124,8 +124,10 @@ namespace FikoEngine
 
         CommandPool::Destroy( vulkanCtxPtr->m_CommandPool );
 
-        vulkanCtxPtr->m_Device.destroySwapchainKHR(vulkanCtxPtr->m_Swapchain);
-        LOG_INFO("Destroyed Swapchain!");
+        for ( auto imageView: vulkanCtxPtr->m_ImageViews ) { vulkanCtxPtr->m_Device.destroyImageView( imageView ); }
+
+        vulkanCtxPtr->m_Device.destroySwapchainKHR( vulkanCtxPtr->m_Swapchain );
+        LOG_INFO( "Destroyed Swapchain!" );
 
         vulkanCtxPtr->m_Device.destroy();
         LOG_INFO( "Destroyed Logical Device" );
@@ -391,7 +393,30 @@ namespace FikoEngine
             return { VulkanSwapchainStatus::Fail };
         }
         m_Swapchain = swapchainStatus.value;
-        
+
+        auto swapchainImagesStatus = m_Device.getSwapchainImagesKHR( m_Swapchain );
+        if ( vk::Result::eSuccess != swapchainImagesStatus.result )
+        {
+            LOG_ERROR( "Can Not Retrieve Swapchain Images!" );
+            return { VulkanSwapchainStatus::Fail };
+        }
+        m_Images = swapchainImagesStatus.value;
+
+        for ( uint32_t index = 0; index < m_Images.size(); index++ )
+        {
+            vk::ImageViewCreateInfo imageViewCreateInfo(
+                    {}, m_Images[ index ], vk::ImageViewType::e2D, m_Format, vk::ComponentMapping(),
+                    vk::ImageSubresourceRange( vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1 ) );
+
+            auto viewStatus = m_Device.createImageView( imageViewCreateInfo );
+            if ( vk::Result::eSuccess != viewStatus.result )
+            {
+                LOG_ERROR( "Can Not Create Image Views!" );
+                return { VulkanSwapchainStatus::Fail };
+            }
+            m_ImageViews.emplace_back( viewStatus.value );
+        }
+
         LOG_INFO( "Created Swapchain!" );
         return { VulkanSwapchainStatus::Created };
     }
