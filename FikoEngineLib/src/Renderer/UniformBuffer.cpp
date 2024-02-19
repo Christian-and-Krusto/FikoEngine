@@ -62,6 +62,7 @@ namespace FikoEngine
     Result<UniformBufferStatus> UniformBuffer::Init( vk::PhysicalDevice physicalDevice, vk::Device device,
                                                      uint32_t size, uint8_t* data )
     {
+        m_Size = size;
         auto uniformDataBufferStatus = device.createBuffer(
                 vk::BufferCreateInfo( vk::BufferCreateFlags(), size, vk::BufferUsageFlagBits::eUniformBuffer ) );
         if ( vk::Result::eSuccess != uniformDataBufferStatus.result )
@@ -101,7 +102,6 @@ namespace FikoEngine
             return { UniformBufferStatus::Fail };
         }
         m_BufferMemory = uniformDataMemoryStatus.value;
-
         if ( size > 0 )
         {
             auto mapMemoryStatus = device.mapMemory( m_BufferMemory, 0, memoryRequirements.size );
@@ -142,6 +142,8 @@ namespace FikoEngine
 
         return { UniformBufferStatus::Success }; 
     }
+
+    const size_t UniformBuffer::GetSize() const{ return m_Size; }
 
 
 }// namespace FikoEngine

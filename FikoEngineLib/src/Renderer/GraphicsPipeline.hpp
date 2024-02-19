@@ -32,7 +32,7 @@
  * 
  * @section DESCRIPTION
  * 
- * UniformBuffer class definition
+ * GraphicsPipeline class definition
  */
 
 
@@ -40,14 +40,16 @@
 Includes
 ***********************************************************************************************************************/
 #include <Core/Result.hpp>
+#include "UniformBuffer.hpp"
 #include <vulkan/vulkan.hpp>
+
 
 /***********************************************************************************************************************
 Enum Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    enum class UniformBufferStatus
+    enum class GraphicsPipelineStatus
     {
         Fail,
         Success
@@ -59,6 +61,10 @@ Struct definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
+    struct GraphicsPipelineSpec {
+        vk::Format format;
+        vk::Extent2D extent;
+    };
 }// namespace FikoEngine
 
 /***********************************************************************************************************************
@@ -68,23 +74,29 @@ Class definitions
 namespace FikoEngine
 {
 
-    class UniformBuffer
+    class GraphicsPipeline
     {
     public:
-        UniformBuffer() = default;
-        ~UniformBuffer() = default;
+        GraphicsPipeline() = default;
+        ~GraphicsPipeline();
 
     public:
-        Result<UniformBufferStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, uint32_t size,
-                                          uint8_t* data );
-        Result<UniformBufferStatus, vk::Buffer> GetBufferHandle();
-        Result<UniformBufferStatus> Destroy( vk::Device device );
+        Result<GraphicsPipelineStatus> Init(vk::Device device, GraphicsPipelineSpec graphicsPipelineSpec );
+        Result<GraphicsPipelineStatus> Update(vk::Device device,UniformBuffer* uniformBuffer);
 
-        const size_t GetSize() const;
+        Result<GraphicsPipelineStatus, vk::Pipeline> GetGraphicsPipeline();
+        Result<GraphicsPipelineStatus, vk::PipelineLayout> GetGraphicsPipelineLayout();
+        Result<GraphicsPipelineStatus, GraphicsPipelineSpec> GetGraphicsPipelineSpec();
+        Result<GraphicsPipelineStatus> Destroy( vk::Device device );
 
     private:
-        size_t m_Size{};
-        vk::Buffer m_Buffer{};
-        vk::DeviceMemory m_BufferMemory{};
+        vk::Pipeline m_GraphicsPipeline;
+        vk::PipelineLayout m_GraphicsPipelineLayout;
+        vk::DescriptorSetLayout m_DescriptorSetLayout;
+        vk::DescriptorPool m_DescriptorPool;
+        vk::DescriptorSet m_DescriptorSet;
+        vk::DeviceMemory m_Memory;
+
+        GraphicsPipelineSpec m_GraphicsPipelineSpec;
     };
 }// namespace FikoEngine

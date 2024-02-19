@@ -64,6 +64,7 @@ namespace FikoEngine
 
     Result<ImageStatus> Image::Init( vk::PhysicalDevice physicalDevice, vk::Device device, ImageSpec imageSpec )
     {
+        m_ImageSpec = imageSpec;
         vk::FormatProperties formatProperties = physicalDevice.getFormatProperties( imageSpec.format );
 
         vk::ImageTiling tiling;
