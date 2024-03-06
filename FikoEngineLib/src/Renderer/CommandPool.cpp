@@ -63,10 +63,15 @@ namespace FikoEngine
         CommandPool* commandPool = new CommandPool();
 
         commandPool->m_VkDevice = device;
-        auto result = device->createCommandPool(
-                vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
-        commandPool->m_VkCommandPool = result.value;
+        auto result = vkInterface::CreateCommandPool( device, graphicsQueueFamilyIndex );
 
+        if ( vk::Result::eSuccess != result.result )
+        {
+            LOG_ERROR("Can Not Create Command Pool!");
+            return { CommandPoolState::Fail, nullptr};
+        }
+
+        commandPool->m_VkCommandPool = result.value;
         LOG_INFO( "Created Command Pool" );
 
         commandPool->CreateCommandBuffer();
@@ -80,10 +85,10 @@ namespace FikoEngine
         {
             for ( auto& [ bufferState, buffer ]: commandPool->m_VkCommandBuffers )
             {
-                commandPool->m_VkDevice->freeCommandBuffers( commandPool->m_VkCommandPool, buffer );
+                vkInterface::FreeCommandBuffers(commandPool->m_VkDevice, commandPool->m_VkCommandPool, buffer );
                 bufferState = CommandBufferState::Invalid;
             }
-            commandPool->m_VkDevice->destroyCommandPool( *commandPool );
+            vkInterface::DestroyCommandPool( commandPool->m_VkDevice, *commandPool );
             delete commandPool;
 
             LOG_INFO( "Destroyed Command Pool" );
@@ -94,8 +99,7 @@ namespace FikoEngine
 
     Result<CommandBufferState> CommandPool::CreateCommandBuffer()
     {
-        auto buffer = m_VkDevice
-                              ->allocateCommandBuffers( vk::CommandBufferAllocateInfo(
+        auto buffer = vkInterface::AllocateCommandBuffers(m_VkDevice,vk::CommandBufferAllocateInfo(
                                       m_VkCommandPool, vk::CommandBufferLevel::ePrimary, 1 ) )
                               .value.front();
 
@@ -141,4 +145,26 @@ namespace FikoEngine
         return { CommandBufferState::Executable };
     }
 
+    vk::ResultValue<vk::CommandPool> CommandPool::_vkCreateCommandPool( vk::Device* device,
+                                                                        uint32_t graphicsQueueFamilyIndex )
+    {
+        return device->createCommandPool(
+                vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
+    }
+
+    void CommandPool::_vkDestroyCommandPool( vk::Device* device, vk::CommandPool commandPool )
+    {
+        device->destroyCommandPool(commandPool);
+    }
+
+    void CommandPool::_vkFreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer )
+    {
+        device->freeCommandBuffers(commandPool,buffer);
+    }
+
+    vk::ResultValue<std::vector<vk::CommandBuffer>>
+    CommandPool::_vkAllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo )
+    {
+        device->allocateCommandBuffers(allocateInfo);
+    }
 }// namespace FikoEngine

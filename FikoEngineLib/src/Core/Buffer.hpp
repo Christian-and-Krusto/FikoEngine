@@ -48,47 +48,52 @@ Includes
 /***********************************************************************************************************************
 Class definitions
 ***********************************************************************************************************************/
-
-class Buffer: public RefCounted
+namespace FikoEngine
 {
-public:
-    Buffer();
+    class Buffer: public RefCounted
+    {
+    public:
+        Buffer();
 
-    Buffer( uint8_t* data, uint32_t size );
+        Buffer( uint8_t* data, uint32_t size );
 
-    Buffer( const Buffer& other );
-    ~Buffer();
+        Buffer( const Buffer& other );
+        ~Buffer();
 
-public:
-    static Buffer Copy( const uint8_t* data, uint32_t size );
+    public:
+        static Buffer Copy( const uint8_t* data, uint32_t size );
 
-    void Allocate( uint32_t size );
+        void Allocate( uint32_t size );
 
-    void Release();
+        void Release();
 
-    void ZeroInitialize();
+        void ZeroInitialize();
 
-    uint8_t* ReadBytes( uint32_t size, uint32_t offset );
+        uint8_t* ReadBytes( uint32_t size, uint32_t offset );
 
-    void Write( uint8_t* data, uint32_t size, uint32_t offset = 0 );
+        void Write( uint8_t* data, uint32_t size, uint32_t offset = 0 );
 
-    uint32_t GetSize() const;
+        uint32_t GetSize() const;
 
-    template <typename T>
-    T& Read( uint32_t offset = 0 );
-    template <typename T>
-    T& Read( uint32_t offset = 0 ) const;
+    public:
+        template <typename T>
+        T& Read( uint32_t offset = 0 );
+        template <typename T>
+        T& Read( uint32_t offset = 0 ) const;
 
-    template <typename T>
-    T* As();
+        template <typename T>
+        T* As();
 
-public:
-    operator bool() const;
+    public:
+        operator bool() const;
 
-    uint8_t& operator[]( int index );
-    uint8_t operator[]( int index ) const;
+        uint8_t& operator[]( int index );
+        uint8_t operator[]( int index ) const;
 
-public:
-    uint8_t* Data;
-    uint32_t Size;
-};
+    public:
+        uint8_t* Data;
+        uint32_t Size;
+    };
+}// namespace FikoEngine
+
+#include "Buffer.inl"

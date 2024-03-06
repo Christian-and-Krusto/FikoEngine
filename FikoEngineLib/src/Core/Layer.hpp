@@ -49,6 +49,7 @@ namespace FikoEngine
     class Layer
     {
     public:
+        virtual ~Layer() = default;
         virtual void Init() = 0;
         virtual void Destroy() = 0;
         virtual void OnAttach() = 0;

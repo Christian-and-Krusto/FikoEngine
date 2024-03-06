@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.23)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
+set(SHADERC_SKIP_TESTS  ON CACHE BOOL "" FORCE)
 
 set(PROJECT_NAME "FikoEngine")
 
@@ -18,26 +19,26 @@ add_subdirectory(vendor/lwlog)
 message("${PROJECT_NAME}: Adding glfw")
 add_subdirectory(vendor/glfw-3.3.4)
 
+message("${PROJECT_NAME}: Adding shaderc")
+add_subdirectory(vendor/vulkan/shaderc)
+
 message("${PROJECT_NAME}: Adding source files")
 
 file(GLOB_RECURSE ${PROJECT_NAME}_SOURCE_FILES ./${PROJECT_NAME}Lib/src/*.cpp)
 file(GLOB_RECURSE ${PROJECT_NAME}_HEADER_FILES ./${PROJECT_NAME}Lib/src/*.hpp)
 
-file(GLOB_RECURSE ${PROJECT_NAME}_EDITOR_SOURCE_FILES ./${PROJECT_NAME}Editor/src/*.cpp)
-file(GLOB_RECURSE ${PROJECT_NAME}_EDITOR_HEADER_FILES ./${PROJECT_NAME}Editor/src/*.hpp)
-
-file(GLOB_RECURSE SANDBOX_SOURCE_FILES ./Sandbox/src/*.cpp)
-file(GLOB_RECURSE SANDBOX_HEADER_FILES ./Sandbox/src/*.h)
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+enable_testing()
 
 add_library(${PROJECT_NAME}Lib STATIC ${FikoEngine_SOURCE_FILES} )
 
 set(LWLOG_INCLUDE_DIR "./vendor/lwlog/lwlog/src")
 set(GLFW_INCLUDE_DIR "./vendor/glfw-3.3.4/include")
-set(VULKAN_INCLUDE_DIR         "C:/VulkanSDK/1.3.261.1/Include")
+set(VULKAN_INCLUDE_DIR         "./vendor/vulkan/include")
+set(SHADERC_INCLUDE_DIR         "./vendor/vulkan/shaderc/libshaderc/include")
 set(${PROJECT_NAME}_INCLUDE_DIR "./${PROJECT_NAME}Lib/src")
 
 target_compile_definitions(${PROJECT_NAME}Lib PRIVATE VULKAN_HPP_NO_EXCEPTIONS)
@@ -53,7 +54,8 @@ else ()
     add_definitions(-DGLFW_EXPOSE_NATIVE_X11)
 endif ()
 
-target_include_directories(${PROJECT_NAME}Lib PUBLIC ${FikoEngine_INCLUDE_DIR} ${LWLOG_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} ${VULKAN_INCLUDE_DIR})
+target_include_directories(${PROJECT_NAME}Lib PUBLIC ${FikoEngine_INCLUDE_DIR} ${LWLOG_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} ${VULKAN_INCLUDE_DIR}
+${SHADERC_INCLUDE_DIR} "./vendor/vulkan")
 
 set_target_properties(${PROJECT_NAME}Lib PROPERTIES LINKER_LANGUAGE CXX)
 add_library(${PROJECT_NAME}InterfaceLibrary INTERFACE)
@@ -66,25 +68,15 @@ target_link_libraries(${PROJECT_NAME}InterfaceLibrary INTERFACE
         lwlog_lib
         glfw
         C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib
+        shaderc
         )
 
 target_link_libraries(${PROJECT_NAME}Lib PUBLIC ${PROJECT_NAME}InterfaceLibrary)
 
-add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
-
-target_include_directories(Sandbox PRIVATE ${${PROJECT_NAME}_INCLUDE_DIR})
-target_link_libraries(Sandbox PRIVATE ${PROJECT_NAME}Lib)
-
-add_executable(${PROJECT_NAME}Editor ${FikoEngine_EDITOR_SOURCE_FILES})
-
-target_include_directories(${PROJECT_NAME}Editor PRIVATE ${FikoEngine_INCLUDE_DIR})
-target_link_libraries(${PROJECT_NAME}Editor PRIVATE ${PROJECT_NAME}Lib)
-
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(${PROJECT_NAME}Lib PRIVATE -static-libstdc++ -Wall -pedantic)
-    target_compile_options(${PROJECT_NAME}Editor PRIVATE -static-libstdc++ -Wall -pedantic)
-    target_compile_options(Sandbox PRIVATE -static-libstdc++ 
-    # -Wall
-    # -pedantic
-     )
 endif ()
+
+add_subdirectory("./FikoEngineLib")
+add_subdirectory("./FikoEngineEditor")
+add_subdirectory("./Sandbox")

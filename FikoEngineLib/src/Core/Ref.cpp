@@ -43,339 +43,343 @@ Includes
 Macro definitions
 ***************************************************************************************************************************/
 
-/***************************************************************************************************************************
+namespace FikoEngine
+{
+    /***************************************************************************************************************************
 Type definitions
 ***************************************************************************************************************************/
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Static variables
 ***************************************************************************************************************************/
 
-static std::unordered_map<void*, size_t> s_LiveReferences;
-static std::mutex s_LiveReferenceMutex;
+    static std::unordered_map<void*, size_t> s_LiveReferences;
+    static std::mutex s_LiveReferenceMutex;
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 RefUtils namespace global functions implementation
 ***************************************************************************************************************************/
-namespace RefUtils
-{
-
-    void AddToLiveReferences( void* instance, size_t size )
+    namespace RefUtils
     {
-        std::scoped_lock<std::mutex> lock( s_LiveReferenceMutex );
-        s_LiveReferences.emplace( instance, size );
-    }
 
-    void RemoveFromLiveReferences( void* instance )
-    {
-        std::scoped_lock<std::mutex> lock( s_LiveReferenceMutex );
-        s_LiveReferences.erase( instance );
-    }
+        void AddToLiveReferences( void* instance, size_t size )
+        {
+            std::scoped_lock<std::mutex> lock( s_LiveReferenceMutex );
+            s_LiveReferences.emplace( instance, size );
+        }
 
-    size_t GetSizeFromLiveReferences( void* instance )
-    {
-        std::scoped_lock<std::mutex> lock( s_LiveReferenceMutex );
-        if ( s_LiveReferences.contains( instance ) ) return s_LiveReferences.at( instance );
-        return 0;
-    }
+        void RemoveFromLiveReferences( void* instance )
+        {
+            std::scoped_lock<std::mutex> lock( s_LiveReferenceMutex );
+            s_LiveReferences.erase( instance );
+        }
 
-    bool IsLive( void* instance ) { return s_LiveReferences.find( instance ) != s_LiveReferences.end(); }
-}// namespace RefUtils
+        size_t GetSizeFromLiveReferences( void* instance )
+        {
+            std::scoped_lock<std::mutex> lock( s_LiveReferenceMutex );
+            if ( s_LiveReferences.contains( instance ) ) return s_LiveReferences.at( instance );
+            return 0;
+        }
 
-/***************************************************************************************************************************
+        bool IsLive( void* instance ) { return s_LiveReferences.find( instance ) != s_LiveReferences.end(); }
+    }// namespace RefUtils
+
+    /***************************************************************************************************************************
 RefCounted base class functions implementation
 ***************************************************************************************************************************/
-void RefCounted::IncRefCount() const { m_RefCount++; }
+    void RefCounted::IncRefCount() const { m_RefCount++; }
 
-void RefCounted::DecRefCount() const { m_RefCount--; }
+    void RefCounted::DecRefCount() const { m_RefCount--; }
 
-uint32_t RefCounted::GetRefCount() const { return m_RefCount.load(); }
+    uint32_t RefCounted::GetRefCount() const { return m_RefCount.load(); }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Ref class constructors implementation
 ***************************************************************************************************************************/
-template <typename T>
-Ref<T>::Ref() : m_Instance( nullptr )
-{}
+    template <typename T>
+    Ref<T>::Ref() : m_Instance( nullptr )
+    {}
 
-template <typename T>
-Ref<T>::Ref( std::nullptr_t ) : m_Instance( nullptr )
-{}
+    template <typename T>
+    Ref<T>::Ref( std::nullptr_t ) : m_Instance( nullptr )
+    {}
 
-template <typename T>
-Ref<T>::Ref( T* instance ) : m_Instance( instance )
-{
-    static_assert( std::is_base_of<RefCounted, T>::value, "Class is not RefCounted!" );
-    std::lock_guard<std::mutex> lock( m );
-    IncRef();
-}
+    template <typename T>
+    Ref<T>::Ref( T* instance ) : m_Instance( instance )
+    {
+        static_assert( std::is_base_of<RefCounted, T>::value, "Class is not RefCounted!" );
+        std::lock_guard<std::mutex> lock( m );
+        IncRef();
+    }
 
-template <typename T>
-Ref<T>::Ref( const Ref<T>& other ) : m_Instance( other.m_Instance )
-{
-    IncRef();
-}
+    template <typename T>
+    Ref<T>::Ref( const Ref<T>& other ) : m_Instance( other.m_Instance )
+    {
+        IncRef();
+    }
 
-template <typename T>
-template <typename T2>
-Ref<T>::Ref( Ref<T2>&& other )
-{
-    m_Instance = ( T* ) other.m_Instance;
-    other.m_Instance = nullptr;
-}
+    template <typename T>
+    template <typename T2>
+    Ref<T>::Ref( Ref<T2>&& other )
+    {
+        m_Instance = ( T* ) other.m_Instance;
+        other.m_Instance = nullptr;
+    }
 
-template <typename T>
-template <typename T2>
-Ref<T>::Ref( const Ref<T2>& other )
-{
-    m_Instance = ( T* ) other.m_Instance;
-    IncRef();
-}
+    template <typename T>
+    template <typename T2>
+    Ref<T>::Ref( const Ref<T2>& other )
+    {
+        m_Instance = ( T* ) other.m_Instance;
+        IncRef();
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Ref class de-constructor implementation
 ***************************************************************************************************************************/
-template <typename T>
-Ref<T>::~Ref()
-{
-    DecRef();
-}
+    template <typename T>
+    Ref<T>::~Ref()
+    {
+        DecRef();
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Ref class static functions implementation
 ***************************************************************************************************************************/
-template <typename T>
-template <typename... Args, auto size>
-Ref<T> Ref<T>::Create( Args&&... args )
-{
+    template <typename T>
+    template <typename... Args, auto size>
+    Ref<T> Ref<T>::Create( Args&&... args )
+    {
 
 #ifdef __GNUC__
-    LOG_INFO( "Allocated " + std::to_string( size ) + "B Ref<" + std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
+        LOG_INFO( "Allocated " + std::to_string( size ) + "B Ref<" +
+                  std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
 #else
 #endif
-    return Ref<T>( new T( std::forward<Args>( args )... ) );
-}
+        return Ref<T>( new T( std::forward<Args>( args )... ) );
+    }
 
-template <typename T>
-Ref<T> Ref<T>::CopyWithoutIncrement( const Ref<T>& other )
-{
-    Ref<T> result = nullptr;
-    result->m_Instance = other.m_Instance;
-    return result;
-}
+    template <typename T>
+    Ref<T> Ref<T>::CopyWithoutIncrement( const Ref<T>& other )
+    {
+        Ref<T> result = nullptr;
+        result->m_Instance = other.m_Instance;
+        return result;
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Ref class public functions implementation
 ***************************************************************************************************************************/
-template <typename T>
-T* Ref<T>::Raw()
-{
-    return m_Instance;
-}
+    template <typename T>
+    T* Ref<T>::Raw()
+    {
+        return m_Instance;
+    }
 
-template <typename T>
-const T* Ref<T>::Raw() const
-{
-    return m_Instance;
-}
+    template <typename T>
+    const T* Ref<T>::Raw() const
+    {
+        return m_Instance;
+    }
 
-template <typename T>
-void Ref<T>::Reset( T* instance )
-{
-    DecRef();
-    m_Instance = instance;
-}
+    template <typename T>
+    void Ref<T>::Reset( T* instance )
+    {
+        DecRef();
+        m_Instance = instance;
+    }
 
-template <typename T>
-template <typename T2>
-Ref<T2> Ref<T>::As() const
-{
-    return Ref<T2>( *this );
-}
+    template <typename T>
+    template <typename T2>
+    Ref<T2> Ref<T>::As() const
+    {
+        return Ref<T2>( *this );
+    }
 
-template <typename T>
-bool Ref<T>::EqualsObject( const Ref<T>& other )
-{
-    if ( !m_Instance || !other.m_Instance ) return false;
+    template <typename T>
+    bool Ref<T>::EqualsObject( const Ref<T>& other )
+    {
+        if ( !m_Instance || !other.m_Instance ) return false;
 
-    return *m_Instance == *other.m_Instance;
-}
+        return *m_Instance == *other.m_Instance;
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Ref class operators overload implementation
 ***************************************************************************************************************************/
-template <typename T>
-Ref<T>& Ref<T>::operator=( const Ref<T>& other )
-{
-    other.IncRef();
-    DecRef();
+    template <typename T>
+    Ref<T>& Ref<T>::operator=( const Ref<T>& other )
+    {
+        other.IncRef();
+        DecRef();
 
-    m_Instance = other.m_Instance;
-    return *this;
-}
+        m_Instance = other.m_Instance;
+        return *this;
+    }
 
-template <typename T>
-Ref<T>& Ref<T>::operator=( std::nullptr_t )
-{
-    DecRef();
-    m_Instance = nullptr;
-    return *this;
-}
+    template <typename T>
+    Ref<T>& Ref<T>::operator=( std::nullptr_t )
+    {
+        DecRef();
+        m_Instance = nullptr;
+        return *this;
+    }
 
-template <typename T>
-template <typename T2>
-Ref<T>& Ref<T>::operator=( const Ref<T2>& other )
-{
-    other.IncRef();
-    DecRef();
+    template <typename T>
+    template <typename T2>
+    Ref<T>& Ref<T>::operator=( const Ref<T2>& other )
+    {
+        other.IncRef();
+        DecRef();
 
-    m_Instance = other.m_Instance;
-    return *this;
-}
+        m_Instance = other.m_Instance;
+        return *this;
+    }
 
-template <typename T>
-template <typename T2>
-Ref<T>& Ref<T>::operator=( Ref<T2>&& other )
-{
-    DecRef();
+    template <typename T>
+    template <typename T2>
+    Ref<T>& Ref<T>::operator=( Ref<T2>&& other )
+    {
+        DecRef();
 
-    m_Instance = other.m_Instance;
-    other.m_Instance = nullptr;
-    return *this;
-}
+        m_Instance = other.m_Instance;
+        other.m_Instance = nullptr;
+        return *this;
+    }
 
-template <typename T>
-bool Ref<T>::operator==( const Ref<T>& other ) const
-{
-    return m_Instance == other.m_Instance;
-}
+    template <typename T>
+    bool Ref<T>::operator==( const Ref<T>& other ) const
+    {
+        return m_Instance == other.m_Instance;
+    }
 
-template <typename T>
-bool Ref<T>::operator!=( const Ref<T>& other ) const
-{
-    return !( *this == other );
-}
+    template <typename T>
+    bool Ref<T>::operator!=( const Ref<T>& other ) const
+    {
+        return !( *this == other );
+    }
 
-template <typename T>
-Ref<T>::operator bool()
-{
-    return m_Instance != nullptr;
-}
+    template <typename T>
+    Ref<T>::operator bool()
+    {
+        return m_Instance != nullptr;
+    }
 
-template <typename T>
-Ref<T>::operator bool() const
-{
-    return m_Instance != nullptr;
-}
+    template <typename T>
+    Ref<T>::operator bool() const
+    {
+        return m_Instance != nullptr;
+    }
 
-template <typename T>
-Ref<T>::operator T*()
-{
-    return m_Instance;
-}
+    template <typename T>
+    Ref<T>::operator T*()
+    {
+        return m_Instance;
+    }
 
-template <typename T>
-Ref<T>::operator T*() const
-{
-    return m_Instance;
-}
+    template <typename T>
+    Ref<T>::operator T*() const
+    {
+        return m_Instance;
+    }
 
-template <typename T>
-T* Ref<T>::operator->()
-{
-    return m_Instance;
-}
+    template <typename T>
+    T* Ref<T>::operator->()
+    {
+        return m_Instance;
+    }
 
-template <typename T>
-const T* Ref<T>::operator->() const
-{
-    return m_Instance;
-}
+    template <typename T>
+    const T* Ref<T>::operator->() const
+    {
+        return m_Instance;
+    }
 
-template <typename T>
-T& Ref<T>::operator*()
-{
-    return *m_Instance;
-}
+    template <typename T>
+    T& Ref<T>::operator*()
+    {
+        return *m_Instance;
+    }
 
-template <typename T>
-const T& Ref<T>::operator*() const
-{
-    return *m_Instance;
-}
+    template <typename T>
+    const T& Ref<T>::operator*() const
+    {
+        return *m_Instance;
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 Ref class private functions implementation
 ***************************************************************************************************************************/
-template <typename T>
-void Ref<T>::IncRef() const
-{
-    if ( m_Instance )
+    template <typename T>
+    void Ref<T>::IncRef() const
     {
-        m_Instance->IncRefCount();
-        RefUtils::AddToLiveReferences( ( void* ) m_Instance, sizeof( T ) );
-    }
-}
-
-template <typename T>
-void Ref<T>::DecRef() const
-{
-    if ( m_Instance )
-    {
-        m_Instance->DecRefCount();
-        if ( m_Instance->GetRefCount() == 0 )
+        if ( m_Instance )
         {
-            std::lock_guard<std::mutex> lock( m );
-            delete m_Instance;
-
-#ifdef __GNUC__
-            LOG_INFO( "Deallocated " + std::to_string( RefUtils::GetSizeFromLiveReferences( ( void* ) m_Instance ) ) +
-                      "B Ref<" +
-                      std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
-#else
-#endif
-            RefUtils::RemoveFromLiveReferences( ( void* ) m_Instance );
-            m_Instance = nullptr;
+            m_Instance->IncRefCount();
+            RefUtils::AddToLiveReferences( ( void* ) m_Instance, sizeof( T ) );
         }
     }
-}
 
-/***************************************************************************************************************************
+    template <typename T>
+    void Ref<T>::DecRef() const
+    {
+        if ( m_Instance )
+        {
+            m_Instance->DecRefCount();
+            if ( m_Instance->GetRefCount() == 0 )
+            {
+                std::lock_guard<std::mutex> lock( m );
+                delete m_Instance;
+
+#ifdef __GNUC__
+                LOG_INFO( "Deallocated " +
+                          std::to_string( RefUtils::GetSizeFromLiveReferences( ( void* ) m_Instance ) ) + "B Ref<" +
+                          std::string( abi::__cxa_demangle( typeid( T ).name(), 0, 0, 0 ) ) + ">" );
+#else
+#endif
+                RefUtils::RemoveFromLiveReferences( ( void* ) m_Instance );
+                m_Instance = nullptr;
+            }
+        }
+    }
+
+    /***************************************************************************************************************************
 WeakRef class constructors implementation
 ***************************************************************************************************************************/
-template <typename T>
-WeakRef<T>::WeakRef( Ref<T> ref )
-{
-    m_Instance = ref.Raw();
-}
+    template <typename T>
+    WeakRef<T>::WeakRef( Ref<T> ref )
+    {
+        m_Instance = ref.Raw();
+    }
 
-template <typename T>
-WeakRef<T>::WeakRef( T* instance )
-{
-    m_Instance = instance;
-}
+    template <typename T>
+    WeakRef<T>::WeakRef( T* instance )
+    {
+        m_Instance = instance;
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 WeakRef class public functions implementation
 ***************************************************************************************************************************/
-template <typename T>
-bool WeakRef<T>::IsValid() const
-{
-    return m_Instance ? RefUtils::IsLive( m_Instance ) : false;
-}
+    template <typename T>
+    bool WeakRef<T>::IsValid() const
+    {
+        return m_Instance ? RefUtils::IsLive( m_Instance ) : false;
+    }
 
-template <typename T>
-Ref<T> WeakRef<T>::Lock() const
-{
-    if ( IsValid() ) { return Ref<T>( m_Instance ); }
-    return Ref<T>();
-}
+    template <typename T>
+    Ref<T> WeakRef<T>::Lock() const
+    {
+        if ( IsValid() ) { return Ref<T>( m_Instance ); }
+        return Ref<T>();
+    }
 
-/***************************************************************************************************************************
+    /***************************************************************************************************************************
 WeakRef class operators overload implementation
 ***************************************************************************************************************************/
-template <typename T>
-WeakRef<T>::operator bool() const
-{
-    return IsValid();
-}
+    template <typename T>
+    WeakRef<T>::operator bool() const
+    {
+        return IsValid();
+    }
+}// namespace FikoEngine

@@ -71,7 +71,8 @@ namespace FikoEngine
 
         while ( !Application::Get()->m_StoppedFlag )
         {
-            for ( auto& layer: LayerStack::GetLayers() )
+            auto layersStatus = LayerStack::GetLayers();
+            for ( auto layer: layersStatus.returnValue )
             {
                 layer->OnUpdate();
                 Application::Get()->m_StoppedFlag = true;

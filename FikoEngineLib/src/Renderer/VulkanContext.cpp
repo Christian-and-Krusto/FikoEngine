@@ -44,8 +44,10 @@ Includes
 #include <Core/EngineInfo.hpp>
 #include <Core/Log.hpp>
 
+#include <shaderc/shaderc.hpp>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_to_string.hpp>
+
 
 #include <algorithm>
 #include <ranges>
@@ -112,6 +114,35 @@ namespace FikoEngine
         //Create Command Pool
         auto result = CommandPool::Create( &vulkanContextPtr->m_Device, vulkanContextPtr->m_GraphicsQueueIndex );
         VulkanContext::Get()->m_CommandPool = result.returnValue;
+
+        const std::string source_name = "shader_src";
+        shaderc_shader_kind kind = shaderc_glsl_vertex_shader;
+        const std::string source = "#version 460 core\n"
+                                   "void main() { int x = MY_DEFINE; }\n";
+
+        shaderc::Compiler compiler;
+        shaderc::CompileOptions options;
+
+        options.SetOptimizationLevel( shaderc_optimization_level_size );
+        options.AddMacroDefinition("MY_DEFINE","1");
+        shaderc::AssemblyCompilationResult compResult =
+                compiler.CompileGlslToSpvAssembly( source, kind, source_name.c_str(), options );
+
+        if ( compResult.GetCompilationStatus() != shaderc_compilation_status_success )
+        {
+            std::cerr << compResult.GetErrorMessage();
+        }
+        std::string assembly(compResult.begin(),compResult.end());
+        std::cout << "Optimized SPIR-V assembly:" << std::endl << assembly << std::endl;
+
+        shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv( source, kind, source_name.c_str(), options );
+
+        if ( module.GetCompilationStatus() != shaderc_compilation_status_success )
+        {
+            std::cerr << module.GetErrorMessage();
+        }
+        std::string spirv(module.begin(),module.end());
+        std::cout << "Compiled to an optimized binary module with " << spirv.size() << " words." << std::endl;
 
 
         LOG_INFO( "Vulkan Context Created!" );

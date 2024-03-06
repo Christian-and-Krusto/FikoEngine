@@ -52,82 +52,116 @@ Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    inline void LayerStack::Init() { s_LayerStack = new LayerStack(); }
-
-    template <typename T>
-    inline LayerStatus LayerStack::AddLayer()
+    inline Result<LayerStackStatus> LayerStack::Init()
     {
-        LayerStack::Get()->m_Layers.emplace_back( new T() );
-        LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " added!" );
+        if ( LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
 
-        LayerStack::Get()->m_Layers.back()->OnAttach();
-        LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " attached!" );
-
-        return LayerStatus::LayerAdded;
+        s_LayerStack = new LayerStack();
+        return { LayerStackStatus::Initialized };
     }
 
-    LayerStatus LayerStack::RemoveLayer( std::string_view name )
+    template <typename T>
+    inline Result<LayerStatus> LayerStack::AddLayer()
     {
+        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error }; }
+
+        LayerStack::s_LayerStack->m_Layers.emplace_back( new T() );
+        LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " added!" );
+
+        LayerStack::s_LayerStack->m_Layers.back()->OnAttach();
+        LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " attached!" );
+
+        return { LayerStatus::Added };
+    }
+
+    Result<LayerStatus> LayerStack::RemoveLayer( std::string_view name )
+    {
+        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error }; }
+
         uint32_t index = 0;
-        for ( auto& layer: LayerStack::Get()->m_Layers )
+        for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
             if ( layer->GetName() == std::string( name ) )
             {
                 delete layer;
                 layer->OnDettach();
                 layer->OnDestroy();
-                LayerStack::Get()->m_Layers.erase( LayerStack::Get()->m_Layers.begin() + index );
+                LayerStack::s_LayerStack->m_Layers.erase( LayerStack::s_LayerStack->m_Layers.begin() + index );
                 break;
             }
             index++;
         }
-        return LayerStatus::LayerRemoved;
+        return { LayerStatus::Removed };
     }
 
-    inline void LayerStack::Destroy()
+    inline Result<LayerStackStatus> LayerStack::Destroy()
     {
-        LayerStack::DestroyLayers();
-        for ( auto& layer: LayerStack::Get()->m_Layers )
+        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+
+        auto status = LayerStack::DestroyLayers();
+        if ( LayerStackStatus::Destroyed != status ) { return { LayerStackStatus::Error }; }
+
+        for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
             LOG_INFO( "Layer " + layer->GetName() + " removed!" );
             delete layer;
         }
-        LayerStack::Get()->m_Layers.clear();
-        delete s_LayerStack;
+        LayerStack::s_LayerStack->m_Layers.clear();
+        delete LayerStack::s_LayerStack;
+        LayerStack::s_LayerStack = nullptr;
+
+        return { LayerStackStatus::Destroyed };
     }
 
-    inline LayerStack* LayerStack::Get() { return s_LayerStack; }
-
-    Layer* LayerStack::GetLayer( std::string_view name )
+    inline Result<LayerStackStatus, LayerStack*> LayerStack::Get()
     {
-        for ( auto& layer: LayerStack::Get()->m_Layers )
+        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error, nullptr }; }
+
+        return { LayerStackStatus::Success, s_LayerStack };
+    }
+
+    Result<LayerStatus, Layer*> LayerStack::GetLayer( std::string_view name )
+    {
+        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error, nullptr }; }
+
+        for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
-            if ( layer->GetName() == std::string( name ) ) { return layer; }
+            if ( layer->GetName() == std::string( name ) ) { return { LayerStatus::Success, layer }; }
         }
-        return nullptr;
+        return { LayerStatus::Error, nullptr };
     }
 
-    inline const auto& LayerStack::GetLayers() { return LayerStack::Get()->m_Layers; }
-
-    inline void LayerStack::InitLayers()
+    inline Result<LayerStatus, const std::vector<Layer*>&> LayerStack::GetLayers()
     {
-        for ( auto& layer: LayerStack::Get()->m_Layers )
+        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error, {} }; }
+
+        return { LayerStatus::Success, LayerStack::s_LayerStack->m_Layers };
+    }
+
+    inline Result<LayerStackStatus> LayerStack::InitLayers()
+    {
+        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+
+        for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
             layer->Init();
-            LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " initialized!" );
+            LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " initialized!" );
         }
+        return { LayerStackStatus::Initialized };
     }
 
-    inline void LayerStack::DestroyLayers()
+    inline Result<LayerStackStatus> LayerStack::DestroyLayers()
     {
-        for ( auto& layer: LayerStack::Get()->m_Layers )
+        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+        for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
             layer->Destroy();
-            LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " destroyed!" );
+            LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " destroyed!" );
 
             layer->OnDettach();
-            LOG_INFO( "Layer " + LayerStack::Get()->m_Layers.back()->GetName() + " dettached!" );
+            LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " dettached!" );
         }
+        return { LayerStackStatus::Destroyed };
     }
 
 }// namespace FikoEngine

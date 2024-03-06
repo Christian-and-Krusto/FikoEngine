@@ -3,11 +3,11 @@
     "cmakeMinimumRequired": {
         "major": 3,
         "minor": 2,
-        "patch": 0
+        "patch": 3
     },
     "configurePresets": [
         {
-            "name": "build-ninja-debug",
+            "name": "Debug",
             "displayName": "Ninja Build Debug",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/debug",
@@ -16,11 +16,15 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "ON",
+                "PROJECT_NAME": "FikoEngine"
             }
         },
         {
-            "name": "build-ninja-release",
+            "name": "Release",
             "displayName": "Ninja Build Release",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/release",
@@ -29,7 +33,11 @@
                 "strategy": "external"
             },
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CXX_STANDARD": "20",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "ON",
+                "PROJECT_NAME": "FikoEngine"
             }
         },
         {
@@ -49,7 +57,13 @@
             "name": "Debug",
             "description": "",
             "displayName": "",
-            "configurePreset": "build-ninja-debug"
+            "configurePreset": "Debug"
+        },
+        {
+            "name": "Release",
+            "description": "",
+            "displayName": "",
+            "configurePreset": "Release"
         }
     ],
     "testPresets": [

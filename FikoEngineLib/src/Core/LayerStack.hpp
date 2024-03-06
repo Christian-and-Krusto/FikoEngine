@@ -40,6 +40,7 @@
 Includes
 ***********************************************************************************************************************/
 #include "Layer.hpp"
+#include "Result.hpp"
 #include <string_view>
 #include <vector>
 
@@ -51,12 +52,22 @@ namespace FikoEngine
     enum class LayerStatus
     {
         None,
-        LayerAdded,
-        LayerRemoved,
-        LayerNotAdded,
-        LayerAlreadyExist
+        Added,
+        Removed,
+        NotAdded,
+        AlreadyExist,
+        Error,
+        Success
     };
-}
+    enum class LayerStackStatus
+    {
+        None,
+        Initialized,
+        Destroyed,
+        Error,
+        Success,
+    };
+}// namespace FikoEngine
 
 /***********************************************************************************************************************
 Class definitions
@@ -70,16 +81,17 @@ namespace FikoEngine
         LayerStack() = default;
         ~LayerStack() = default;
 
-        static void Init();
+        static Result<LayerStackStatus> Init();
         template <typename T>
-        static LayerStatus AddLayer();
-        static LayerStatus RemoveLayer( std::string_view name );
-        static void Destroy();
-        static LayerStack* Get();
-        static Layer* GetLayer( std::string_view name );
-        static const auto& GetLayers();
-        static void InitLayers();
-        static void DestroyLayers();
+        static Result<LayerStatus> AddLayer();
+        static Result<LayerStatus> RemoveLayer( std::string_view name );
+        static Result<LayerStackStatus> Destroy();
+        static Result<LayerStackStatus, LayerStack*> Get();
+        static Result<LayerStatus, Layer*> GetLayer( std::string_view name );
+        static Result<LayerStatus, const std::vector<Layer*>&> GetLayers();
+        static Result<LayerStackStatus> InitLayers();
+        static Result<LayerStackStatus> DestroyLayers();
+
     private:
         static LayerStack* s_LayerStack;
 

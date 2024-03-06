@@ -59,89 +59,74 @@ Static function Prototypes
 Buffer Class Implementation
 ***********************************************************************************************************************/
 
-
-Buffer::Buffer() : Data( nullptr ), Size( 0 ) {}
-
-Buffer::Buffer( uint8_t* data, uint32_t size ) : Data( data ), Size( size ) {}
-
-Buffer::Buffer( const Buffer& other )
+namespace FikoEngine
 {
-    Data = other.Data;
-    Size = other.Size;
-}
 
-Buffer::~Buffer()
-{
-    if ( Data ) delete[] Data;
-}
+    Buffer::Buffer() : Data( nullptr ), Size( 0 ) {}
 
-Buffer Buffer::Copy( const uint8_t* data, uint32_t size )
-{
-    Buffer buffer;
-    buffer.Allocate( size );
-    memcpy( buffer.Data, data, size );
-    return buffer;
-}
+    Buffer::Buffer( uint8_t* data, uint32_t size ) : Data( data ), Size( size ) {}
 
-void Buffer::Allocate( uint32_t size )
-{
-    if ( Data ) { delete[] Data; }
-    Data = nullptr;
+    Buffer::Buffer( const Buffer& other )
+    {
+        Data = other.Data;
+        Size = other.Size;
+    }
 
-    if ( size == 0 ) return;
+    Buffer::~Buffer()
+    {
+        if ( Data ) delete[] Data;
+    }
 
-    Data = new uint8_t[ size ];
-    Size = size;
-}
+    Buffer Buffer::Copy( const uint8_t* data, uint32_t size )
+    {
+        Buffer buffer;
+        buffer.Allocate( size );
+        memcpy( buffer.Data, data, size );
+        return buffer;
+    }
 
-void Buffer::Release()
-{
-    delete[] Data;
-    Data = nullptr;
-    Size = 0;
-}
+    void Buffer::Allocate( uint32_t size )
+    {
+        if ( Data ) { delete[] Data; }
+        Data = nullptr;
 
-void Buffer::ZeroInitialize()
-{
-    if ( Data ) memset( Data, 0, Size );
-}
+        if ( size == 0 ) return;
 
-template <typename T>
-T& Buffer::Read( uint32_t offset )
-{
-    return *( T* ) ( ( uint8_t* ) Data + offset );
-}
+        Data = new uint8_t[ size ];
+        Size = size;
+    }
 
-template <typename T>
-T& Buffer::Read( uint32_t offset ) const
-{
-    return *( T* ) ( ( uint8_t* ) Data + offset );
-}
+    void Buffer::Release()
+    {
+        delete[] Data;
+        Data = nullptr;
+        Size = 0;
+    }
 
-uint8_t* Buffer::ReadBytes( uint32_t size, uint32_t offset )
-{
-    assert( offset + size <= Size );
-    uint8_t* buffer = new uint8_t[ size ];
-    memcpy( buffer, ( uint8_t* ) Data + offset, size );
-    return buffer;
-}
+    void Buffer::ZeroInitialize()
+    {
+        if ( Data ) memset( Data, 0, Size );
+    }
 
-void Buffer::Write( uint8_t* data, uint32_t size, uint32_t offset )
-{
-    assert( offset + size <= Size );
-    memcpy( ( uint8_t* ) Data + offset, data, size );
-}
+    uint8_t* Buffer::ReadBytes( uint32_t size, uint32_t offset )
+    {
+        assert( offset + size <= Size );
+        uint8_t* buffer = new uint8_t[ size ];
+        memcpy( buffer, ( uint8_t* ) Data + offset, size );
+        return buffer;
+    }
 
-Buffer::operator bool() const { return Data; }
+    void Buffer::Write( uint8_t* data, uint32_t size, uint32_t offset )
+    {
+        assert( offset + size <= Size );
+        memcpy( ( uint8_t* ) Data + offset, data, size );
+    }
 
-uint8_t& Buffer::operator[]( int index ) { return ( ( uint8_t* ) Data )[ index ]; }
+    Buffer::operator bool() const { return Data; }
 
-uint8_t Buffer::operator[]( int index ) const { return ( ( uint8_t* ) Data )[ index ]; }
+    uint8_t& Buffer::operator[]( int index ) { return ( ( uint8_t* ) Data )[ index ]; }
 
-template <typename T>
-T* Buffer::As()
-{
-    return ( T* ) Data;
-}
+    uint8_t Buffer::operator[]( int index ) const { return ( ( uint8_t* ) Data )[ index ]; }
 
-inline uint32_t Buffer::GetSize() const { return Size; }
+    uint32_t Buffer::GetSize() const { return Size; }
+}// namespace FikoEngine

@@ -50,19 +50,25 @@ namespace FikoEngine
     public:
         Timestep() = default;
 
-        Timestep( float time ) : mTime( time ) {}
+        Timestep( float time ) : m_Time( time ) {}
 
-        float toMillis() const { return mTime * ( float ) 1000; }
+    public:
+        float ToMillis() const { return m_Time * ( float ) 1000; }
 
-        float toMicros() const { return mTime * ( float ) 1000000; }
+        float ToMicros() const { return m_Time * ( float ) 1000000; }
 
-        float Time() const { return mTime; }
+        float Time() const { return m_Time; }
 
+        void SetTime( float time ) { m_Time = time; }
+
+    public:
         Timestep operator-( Timestep& other ) { return Timestep( this->Time() - other.Time() ); }
 
-        void setTime( float time ) { mTime = time; }
+        Timestep operator+( Timestep& other ) { return Timestep( this->Time() + other.Time() ); }
+
+        operator float() const { return m_Time; }
 
     private:
-        float mTime{};
+        float m_Time{};
     };
 }// namespace FikoEngine
