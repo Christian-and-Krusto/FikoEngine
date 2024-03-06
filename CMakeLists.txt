@@ -13,6 +13,9 @@ message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 message("C++ standard Version: ${CMAKE_CXX_STANDARD}")
 message("System Architecture: ${CMAKE_GENERATOR_PLATFORM}")
 
+message("FikoEngine Enabled Tests")
+add_definitions(-DFIKO_ENGINE_VK_INTERFACE_ENABLE_TESTING=1 )
+
 message("${PROJECT_NAME}: Adding lwlog")
 add_subdirectory(vendor/lwlog)
 

@@ -20,7 +20,8 @@
                 "CMAKE_CXX_STANDARD": "20",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_CXX_EXTENSIONS": "ON",
-                "PROJECT_NAME": "FikoEngine"
+                "PROJECT_NAME": "FikoEngine",
+                "FIKO_ENGINE_ENABLE_TESTS": "OFF"
             }
         },
         {
@@ -37,6 +38,7 @@
                 "CMAKE_CXX_STANDARD": "20",
                 "CMAKE_CXX_STANDARD_REQUIRED": "ON",
                 "CMAKE_CXX_EXTENSIONS": "ON",
+                "FIKO_ENGINE_ENABLE_TESTS": "OFF",
                 "PROJECT_NAME": "FikoEngine"
             }
         },

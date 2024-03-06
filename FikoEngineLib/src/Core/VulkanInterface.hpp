@@ -61,24 +61,51 @@ namespace FikoEngine
     public:
         vkInterface() = default;
         ~vkInterface() = default;
-        
-        static vk::ResultValue<vk::CommandPool> CreateCommandPool( vk::Device* device,
-                                                                     uint32_t graphicsQueueFamilyIndex );
 
+        static vk::ResultValue<vk::CommandPool> CreateCommandPool( vk::Device* device,
+                                                                   uint32_t graphicsQueueFamilyIndex );
         static void DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool );
-        static void FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
 
         static vk::ResultValue<std::vector<vk::CommandBuffer>>
         AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo );
+        static void FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
+
+    public:
+        template <typename T>
+        static void RegisterMockPtr()
+        {
+            if ( s_EnableTest ) s_MockPtr = new T();
+        }
+
+        template <typename T>
+        static void DestroyMockPtr()
+        {
+            if ( s_EnableTest && s_MockPtr ) delete (T*)s_MockPtr;
+        }
+
+        template <typename T>
+        static T* GetMockPtr()
+        {
+            return ( T* ) s_MockPtr;
+        }
 
     protected:
         virtual vk::ResultValue<vk::CommandPool> _CreateCommandPool( vk::Device* device,
-                                                                      uint32_t graphicsQueueFamilyIndex );
-
-        virtual void _DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool );
-        virtual void _FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
+                                                                     uint32_t graphicsQueueFamilyIndex ) = 0;
+        virtual void _DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool ) = 0;
 
         virtual vk::ResultValue<std::vector<vk::CommandBuffer>>
-        _AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo );
+        _AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) = 0;
+        virtual void _FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool,
+                                          vk::CommandBuffer buffer ) = 0;
+
+    public:
+        inline static vkInterface* s_MockPtr = nullptr;
+
+#if FIKO_ENGINE_VK_INTERFACE_ENABLE_TESTING == 1
+        constexpr inline static bool s_EnableTest = true;
+#else
+        constexpr inline static bool s_EnableTest = false;
+#endif
     };
 }// namespace FikoEngine

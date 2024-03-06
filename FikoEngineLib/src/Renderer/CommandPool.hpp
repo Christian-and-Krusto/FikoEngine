@@ -97,17 +97,8 @@ namespace FikoEngine
 
     private:
         vk::CommandPool m_VkCommandPool;
-        std::vector<std::pair<CommandBufferState, vk::CommandBuffer>> m_VkCommandBuffers;
+        std::vector<Result<CommandBufferState, vk::CommandBuffer>> m_VkCommandBuffers;
         vk::Device* m_VkDevice;
 
-    protected:
-        static vk::ResultValue<vk::CommandPool> _vkCreateCommandPool( vk::Device* device,
-                                                                      uint32_t graphicsQueueFamilyIndex );
-
-        static void _vkDestroyCommandPool( vk::Device* device, vk::CommandPool commandPool );
-        static void _vkFreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool,vk::CommandBuffer buffer );
-
-        static vk::ResultValue<std::vector<vk::CommandBuffer>>
-        _vkAllocateCommandBuffers( vk::Device* device,const vk::CommandBufferAllocateInfo& allocateInfo );
     };
 }// namespace FikoEngine

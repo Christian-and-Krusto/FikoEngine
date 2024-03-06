@@ -20,4 +20,6 @@ target_link_libraries(FikoEngineLib_Test
   gtest
   gmock_main)
 
+target_include_directories(FikoEngineLib_Test PRIVATE ${CMAKE_SOURCE_DIR}/vendor/gmock-global-1.0.2/include)
+
 add_test(FikoEngineLib_GTests FikoEngineLib_Test)

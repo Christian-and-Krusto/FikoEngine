@@ -57,44 +57,32 @@ namespace FikoEngine
     vk::ResultValue<vk::CommandPool> vkInterface::CreateCommandPool( vk::Device* device,
                                                                      uint32_t graphicsQueueFamilyIndex )
     {
-        return vkInterface()._CreateCommandPool( device, graphicsQueueFamilyIndex );
+        if constexpr ( !s_EnableTest )
+        {
+            return device->createCommandPool(
+                    vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
+        }
+
+        return s_MockPtr->_CreateCommandPool( device, graphicsQueueFamilyIndex );
     }
 
-    void vkInterface::DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool ) {
-        vkInterface()._DestroyCommandPool(device,commandPool);
+    void vkInterface::DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool )
+    {
+        if constexpr ( !s_EnableTest ) { device->destroyCommandPool( commandPool ); }
+        else { s_MockPtr->_DestroyCommandPool( device, commandPool ); }
     }
 
-    void vkInterface::FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer ) {
-        vkInterface()._FreeCommandBuffers(device,commandPool,buffer);
+    void vkInterface::FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer )
+    {
+        if constexpr ( !s_EnableTest ) { device->freeCommandBuffers( commandPool, buffer ); }
+        else { s_MockPtr->_FreeCommandBuffers( device, commandPool, buffer ); }
     }
 
     vk::ResultValue<std::vector<vk::CommandBuffer>>
     vkInterface::AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo )
     {
-        return vkInterface()._AllocateCommandBuffers(device,allocateInfo);
-    }
+        if constexpr ( !s_EnableTest ) { return device->allocateCommandBuffers( allocateInfo ); }
 
-    vk::ResultValue<vk::CommandPool> vkInterface::_CreateCommandPool( vk::Device* device,
-                                                                      uint32_t graphicsQueueFamilyIndex )
-    {
-        return device->createCommandPool(
-                vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
+        return s_MockPtr->_AllocateCommandBuffers( device, allocateInfo );
     }
-
-    void vkInterface::_DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool )
-    {
-        device->destroyCommandPool( commandPool );
-    }
-
-    void vkInterface::_FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer )
-    {
-        device->freeCommandBuffers( commandPool, buffer );
-    }
-
-    vk::ResultValue<std::vector<vk::CommandBuffer>>
-    vkInterface::_AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo )
-    {
-        return device->allocateCommandBuffers( allocateInfo );
-    }
-
 }// namespace FikoEngine

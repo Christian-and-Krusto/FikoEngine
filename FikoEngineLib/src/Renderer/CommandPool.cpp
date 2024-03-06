@@ -67,8 +67,8 @@ namespace FikoEngine
 
         if ( vk::Result::eSuccess != result.result )
         {
-            LOG_ERROR("Can Not Create Command Pool!");
-            return { CommandPoolState::Fail, nullptr};
+            LOG_ERROR( "Can Not Create Command Pool!" );
+            return { CommandPoolState::Fail, nullptr };
         }
 
         commandPool->m_VkCommandPool = result.value;
@@ -83,9 +83,10 @@ namespace FikoEngine
     {
         if ( commandPool )
         {
+            LOG_INFO(commandPool->m_VkCommandBuffers.size());
             for ( auto& [ bufferState, buffer ]: commandPool->m_VkCommandBuffers )
             {
-                vkInterface::FreeCommandBuffers(commandPool->m_VkDevice, commandPool->m_VkCommandPool, buffer );
+                vkInterface::FreeCommandBuffers( commandPool->m_VkDevice, commandPool->m_VkCommandPool, buffer );
                 bufferState = CommandBufferState::Invalid;
             }
             vkInterface::DestroyCommandPool( commandPool->m_VkDevice, *commandPool );
@@ -99,11 +100,11 @@ namespace FikoEngine
 
     Result<CommandBufferState> CommandPool::CreateCommandBuffer()
     {
-        auto buffer = vkInterface::AllocateCommandBuffers(m_VkDevice,vk::CommandBufferAllocateInfo(
-                                      m_VkCommandPool, vk::CommandBufferLevel::ePrimary, 1 ) )
-                              .value.front();
+        vk::CommandBufferAllocateInfo allocateInfo( m_VkCommandPool, vk::CommandBufferLevel::ePrimary, 1 );
+        auto buffers = vkInterface::AllocateCommandBuffers( m_VkDevice, allocateInfo ).value;
+        auto buffer = buffers.front();
 
-        m_VkCommandBuffers.emplace_back( std::pair{ CommandBufferState::Initial, buffer } );
+        m_VkCommandBuffers.emplace_back( Result{ CommandBufferState::Initial, buffer } );
 
         return { CommandBufferState::Created };
     }
@@ -112,59 +113,37 @@ namespace FikoEngine
     {
         if ( m_VkCommandBuffers.size() <= id ) { return { CommandBufferState::Invalid }; }
 
-        return { m_VkCommandBuffers[ id ].first, m_VkCommandBuffers[ id ].second };
+        return { m_VkCommandBuffers[ id ].status, m_VkCommandBuffers[ id ].returnValue };
     }
 
     Result<CommandBufferState> CommandPool::BeginCommandBuffer( uint32_t id )
     {
         if ( m_VkCommandBuffers.size() <= id ) { return { CommandBufferState::Invalid }; }
 
-        if ( CommandBufferState::Initial != m_VkCommandBuffers[ id ].first ) { return { CommandBufferState::Invalid }; }
+        if ( CommandBufferState::Initial != m_VkCommandBuffers[ id ].status ) { return { CommandBufferState::Invalid }; }
 
-        auto bufferStatus = m_VkCommandBuffers[ id ].second.begin(
+        auto bufferStatus = m_VkCommandBuffers[ id ].returnValue.begin(
                 vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlagBits::eOneTimeSubmit ) );
 
         if ( vk::Result::eSuccess != bufferStatus ) { return { CommandBufferState::Invalid }; }
 
-        m_VkCommandBuffers[ id ].first = CommandBufferState::Recording;
+        m_VkCommandBuffers[ id ].status = CommandBufferState::Recording;
         return { CommandBufferState::Recording };
     }
 
     Result<CommandBufferState> CommandPool::EndCommandBuffer( uint32_t id )
     {
         if ( m_VkCommandBuffers.size() <= id ) { return { CommandBufferState::Invalid }; }
-        if ( CommandBufferState::Recording != m_VkCommandBuffers[ id ].first )
+        if ( CommandBufferState::Recording != m_VkCommandBuffers[ id ].status )
         {
             return { CommandBufferState::Invalid };
         }
 
-        auto bufferStatus = m_VkCommandBuffers[ id ].second.end();
+        auto bufferStatus = m_VkCommandBuffers[ id ].returnValue.end();
         if ( vk::Result::eSuccess != bufferStatus ) { return { CommandBufferState::Invalid }; }
-        
-        m_VkCommandBuffers[ id ].first = CommandBufferState::Executable;
+
+        m_VkCommandBuffers[ id ].status = CommandBufferState::Executable;
         return { CommandBufferState::Executable };
     }
 
-    vk::ResultValue<vk::CommandPool> CommandPool::_vkCreateCommandPool( vk::Device* device,
-                                                                        uint32_t graphicsQueueFamilyIndex )
-    {
-        return device->createCommandPool(
-                vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
-    }
-
-    void CommandPool::_vkDestroyCommandPool( vk::Device* device, vk::CommandPool commandPool )
-    {
-        device->destroyCommandPool(commandPool);
-    }
-
-    void CommandPool::_vkFreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer )
-    {
-        device->freeCommandBuffers(commandPool,buffer);
-    }
-
-    vk::ResultValue<std::vector<vk::CommandBuffer>>
-    CommandPool::_vkAllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo )
-    {
-        device->allocateCommandBuffers(allocateInfo);
-    }
 }// namespace FikoEngine
