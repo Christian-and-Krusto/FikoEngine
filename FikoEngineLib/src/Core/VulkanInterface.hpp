@@ -39,6 +39,7 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include <Core/Result.hpp>
 #include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
@@ -62,13 +63,17 @@ namespace FikoEngine
         vkInterface() = default;
         ~vkInterface() = default;
 
-        static vk::ResultValue<vk::CommandPool> CreateCommandPool( vk::Device* device,
-                                                                   uint32_t graphicsQueueFamilyIndex );
+        static Result<vk::Result, vk::CommandPool> CreateCommandPool( vk::Device* device,
+                                                                      uint32_t graphicsQueueFamilyIndex );
         static void DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool );
 
-        static vk::ResultValue<std::vector<vk::CommandBuffer>>
+        static Result<vk::Result, std::vector<vk::CommandBuffer>>
         AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo );
         static void FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
+
+        static Result<vk::Result> CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo );
+
+        static Result<vk::Result> CommandBufferEnd( vk::CommandBuffer buffer );
 
     public:
         template <typename T>
@@ -80,7 +85,7 @@ namespace FikoEngine
         template <typename T>
         static void DestroyMockPtr()
         {
-            if ( s_EnableTest && s_MockPtr ) delete (T*)s_MockPtr;
+            if ( s_EnableTest && s_MockPtr ) delete ( T* ) s_MockPtr;
         }
 
         template <typename T>
@@ -90,14 +95,18 @@ namespace FikoEngine
         }
 
     protected:
-        virtual vk::ResultValue<vk::CommandPool> _CreateCommandPool( vk::Device* device,
-                                                                     uint32_t graphicsQueueFamilyIndex ) = 0;
+        virtual Result<vk::Result, vk::CommandPool> _CreateCommandPool( vk::Device* device,
+                                                                        uint32_t graphicsQueueFamilyIndex ) = 0;
         virtual void _DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool ) = 0;
 
-        virtual vk::ResultValue<std::vector<vk::CommandBuffer>>
+        virtual Result<vk::Result, std::vector<vk::CommandBuffer>>
         _AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) = 0;
         virtual void _FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool,
                                           vk::CommandBuffer buffer ) = 0;
+
+        virtual Result<vk::Result> _CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo ) = 0;
+
+        virtual Result<vk::Result> _CommandBufferEnd( vk::CommandBuffer buffer ) = 0;
 
     public:
         inline static vkInterface* s_MockPtr = nullptr;

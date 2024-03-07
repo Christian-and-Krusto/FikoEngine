@@ -40,6 +40,7 @@
 Includes
 ***********************************************************************************************************************/
 #include <cstdint>
+#include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
 Class definitions
@@ -47,7 +48,7 @@ Class definitions
 
 namespace FikoEngine
 {
-    template <typename StatusType, typename RetValueType = uint32_t>
+    template <typename StatusType = vk::Result, typename RetValueType = uint32_t>
     struct Result {
         StatusType status;
         RetValueType returnValue;
@@ -59,7 +60,5 @@ namespace FikoEngine
         operator RetValueType() { return returnValue; }
 
         operator const RetValueType() const { return returnValue; }
-
-        
     };
 }// namespace FikoEngine

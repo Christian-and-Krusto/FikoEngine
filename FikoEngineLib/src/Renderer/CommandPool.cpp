@@ -65,13 +65,13 @@ namespace FikoEngine
         commandPool->m_VkDevice = device;
         auto result = vkInterface::CreateCommandPool( device, graphicsQueueFamilyIndex );
 
-        if ( vk::Result::eSuccess != result.result )
+        if ( vk::Result::eSuccess != result )
         {
             LOG_ERROR( "Can Not Create Command Pool!" );
             return { CommandPoolState::Fail, nullptr };
         }
 
-        commandPool->m_VkCommandPool = result.value;
+        commandPool->m_VkCommandPool = result;
         LOG_INFO( "Created Command Pool" );
 
         commandPool->CreateCommandBuffer();
@@ -83,7 +83,6 @@ namespace FikoEngine
     {
         if ( commandPool )
         {
-            LOG_INFO(commandPool->m_VkCommandBuffers.size());
             for ( auto& [ bufferState, buffer ]: commandPool->m_VkCommandBuffers )
             {
                 vkInterface::FreeCommandBuffers( commandPool->m_VkDevice, commandPool->m_VkCommandPool, buffer );
@@ -93,7 +92,7 @@ namespace FikoEngine
             delete commandPool;
 
             LOG_INFO( "Destroyed Command Pool" );
-            return Result<CommandPoolState>( CommandPoolState::Destroyed );
+            return { CommandPoolState::Destroyed };
         }
         return { CommandPoolState::Fail };
     }
@@ -101,10 +100,13 @@ namespace FikoEngine
     Result<CommandBufferState> CommandPool::CreateCommandBuffer()
     {
         vk::CommandBufferAllocateInfo allocateInfo( m_VkCommandPool, vk::CommandBufferLevel::ePrimary, 1 );
-        auto buffers = vkInterface::AllocateCommandBuffers( m_VkDevice, allocateInfo ).value;
-        auto buffer = buffers.front();
+        auto buffers = vkInterface::AllocateCommandBuffers( m_VkDevice, allocateInfo ).returnValue;
 
-        m_VkCommandBuffers.emplace_back( Result{ CommandBufferState::Initial, buffer } );
+        if ( buffers.size() > 0 )
+        {
+            auto buffer = buffers.front();
+            m_VkCommandBuffers.emplace_back( Result{ CommandBufferState::Initial, buffer } );
+        }
 
         return { CommandBufferState::Created };
     }
@@ -120,12 +122,17 @@ namespace FikoEngine
     {
         if ( m_VkCommandBuffers.size() <= id ) { return { CommandBufferState::Invalid }; }
 
-        if ( CommandBufferState::Initial != m_VkCommandBuffers[ id ].status ) { return { CommandBufferState::Invalid }; }
+        if ( CommandBufferState::Initial != m_VkCommandBuffers[ id ].status )
+        {
+            return { CommandBufferState::Invalid };
+        }
 
-        auto bufferStatus = m_VkCommandBuffers[ id ].returnValue.begin(
+        auto bufferStatus = vkInterface::CommandBufferBegin(
+                m_VkCommandBuffers[ id ],
                 vk::CommandBufferBeginInfo( vk::CommandBufferUsageFlagBits::eOneTimeSubmit ) );
 
         if ( vk::Result::eSuccess != bufferStatus ) { return { CommandBufferState::Invalid }; }
+
 
         m_VkCommandBuffers[ id ].status = CommandBufferState::Recording;
         return { CommandBufferState::Recording };
@@ -139,7 +146,7 @@ namespace FikoEngine
             return { CommandBufferState::Invalid };
         }
 
-        auto bufferStatus = m_VkCommandBuffers[ id ].returnValue.end();
+        auto bufferStatus = vkInterface::CommandBufferEnd( m_VkCommandBuffers[ id ] );
         if ( vk::Result::eSuccess != bufferStatus ) { return { CommandBufferState::Invalid }; }
 
         m_VkCommandBuffers[ id ].status = CommandBufferState::Executable;
