@@ -39,15 +39,17 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include <vulkan/vulkan.hpp>
 #include <Core/Result.hpp>
+#include <Core/VulkanInterface.hpp>
+#include <Renderer/MemoryBuffer.hpp>
 
 /***********************************************************************************************************************
 Enum Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    enum class ImageType{
+    enum class ImageType
+    {
         None,
         Depth,
         Color
@@ -55,22 +57,29 @@ namespace FikoEngine
     enum class ImageStatus
     {
         Fail,
+        CanNotChooseTiling,
+        CanNotChooseImageFlags,
+        CanNotFindMemoryType,
+        CanNotAllocateMemory,
+        CanNotBindImageMemory,
+        CanNotMapImageMemory,
+        CanNotCreateImageView,
         Success
     };
-}
+}// namespace FikoEngine
 
 /***********************************************************************************************************************
 Struct definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    struct ImageSpec
-    {
+    struct ImageSpec {
         ImageType type;
         vk::Format format;
         vk::Extent2D extent;
     };
-}
+}// namespace FikoEngine
+
 /***********************************************************************************************************************
 Class definitions
 ***********************************************************************************************************************/
@@ -78,24 +87,35 @@ Class definitions
 namespace FikoEngine
 {
 
-    class Image
+    class Image : public MemoryBuffer
     {
     public:
         Image() = default;
-        ~Image();
+        ~Image() = default;
 
     public:
-        Result<ImageStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, ImageSpec imageSpec );
-        Result<ImageStatus, vk::Image> GetImage();
-        Result<ImageStatus, vk::ImageView> GetImageView();
-        Result<ImageStatus, ImageSpec> GetImageSpec();
-        Result<ImageStatus> Destroy(vk::Device device);
+        ResultValueType<ImageStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, ImageSpec imageSpec );
+        ResultValue<ImageStatus, vk::Image> GetImage();
+        ResultValue<ImageStatus, vk::ImageView> GetImageView();
+        ResultValue<ImageStatus, ImageSpec> GetImageSpec();
+        ResultValueType<ImageStatus> Destroy( vk::Device device );
 
+    private:
+        ResultValueType<ImageStatus> CreateImageView( vk::Device device, vk::ImageAspectFlags aspectFlags);
+
+    private:
+        virtual ResultValue<ImageStatus, vk::ImageTiling> ChooseImageTiling( vk::FormatProperties& formatProperties );
+        virtual ResultValueType<ImageStatus> GetImageFlags( ImageType type, vk::ImageUsageFlags& usageFlags,
+                                                        vk::ImageAspectFlags& aspectFlags );
+
+    private:
+        static ImageStatus BufferStatusToImageStatus(BufferStatus status);
+        
     private:
         vk::Image m_Image;
         vk::ImageView m_ImageView;
-        vk::DeviceMemory m_Memory;
 
         ImageSpec m_ImageSpec;
+        
     };
 }// namespace FikoEngine

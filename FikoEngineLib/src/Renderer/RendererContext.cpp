@@ -67,7 +67,7 @@ namespace FikoEngine
 
     RendererContext::~RendererContext() { LOG_INFO( "Destroyed RendererContext" ); }
 
-    Result<RendererContextStatus> RendererContext::Init( RendererSpec& rendererSpec )
+    ResultValueType<RendererContextStatus> RendererContext::Init( RendererSpec& rendererSpec )
     {
         glfwInit();
         LOG_INFO( "Creating RendererContext!" );
@@ -80,22 +80,22 @@ namespace FikoEngine
         }
 
         auto vkContextResult = VulkanContext::Create(
-                VulkanSpec{ rendererSpec, Window::GetRequiredExtensions().returnValue }, result.returnValue );
-        if ( VulkanContextStatus::Created != vkContextResult.status )
+                VulkanSpec{ rendererSpec, Window::GetRequiredExtensions().value }, result.value );
+        if ( VulkanContextStatus::Created != vkContextResult )
         {
             LOG_ERROR( "Could not create Vulkan Context!" );
-            return { RendererContextStatus::Fail };
+            return ResultValueType{ RendererContextStatus::Fail };
         }
 
-        if ( result.status == WindowStatus::Created )
+        if ( result == WindowStatus::Created )
         {
-            m_Window = result.returnValue;
-            return { RendererContextStatus::Initialized };
+            m_Window = result.value;
+            return ResultValueType{ RendererContextStatus::Initialized };
         }
-        return { RendererContextStatus::Fail };
+        return ResultValueType{ RendererContextStatus::Fail };
     }
 
-    Result<RendererContextStatus> RendererContext::Create( RendererSpec& rendererSpec )
+    ResultValueType<RendererContextStatus> RendererContext::Create( RendererSpec& rendererSpec )
     {
         if ( nullptr == RendererContext::GetRenderer() )
         {
@@ -103,22 +103,22 @@ namespace FikoEngine
             auto result = RendererContext::s_RendererContext->Init( rendererSpec );
 
             uint32_t tries = 0, maxTries = 3;
-            while ( result.status != RendererContextStatus::Initialized && tries < maxTries )
+            while ( result != RendererContextStatus::Initialized && tries < maxTries )
             {
                 result = RendererContext::s_RendererContext->Init( rendererSpec );
                 tries++;
             }
 
-            if ( result.status == RendererContextStatus::Initialized )
+            if ( result == RendererContextStatus::Initialized )
             {
-                return { RendererContextStatus::Initialized };
+                return ResultValueType{ RendererContextStatus::Initialized };
             }
-            else { return { RendererContextStatus::Fail }; }
+            else { return ResultValueType{ RendererContextStatus::Fail }; }
         }
-        return { RendererContextStatus::Not_Initialized };
+        return ResultValueType{ RendererContextStatus::Not_Initialized };
     }
 
-    Result<RendererContextStatus> RendererContext::Destroy()
+    ResultValueType<RendererContextStatus> RendererContext::Destroy()
     {
         VulkanContext::Destroy();
 
@@ -127,9 +127,9 @@ namespace FikoEngine
         if ( nullptr != RendererContext::GetRenderer() )
         {
             delete RendererContext::s_RendererContext;
-            return { RendererContextStatus::Destroyed };
+            return ResultValueType{ RendererContextStatus::Destroyed };
         }
-        return { RendererContextStatus::Not_Initialized };
+        return ResultValueType{ RendererContextStatus::Not_Initialized };
     }
 
     RendererSpec RendererContext::GetRendererSpec() { return RendererContext::s_RendererContext->m_RendererSpec; }

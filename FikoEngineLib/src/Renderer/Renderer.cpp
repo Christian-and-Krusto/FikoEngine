@@ -64,55 +64,55 @@ namespace FikoEngine
 
     Renderer::~Renderer() { LOG_INFO( "Destroyed Renderer" ); }
 
-    Result<RendererStatus> Renderer::Init( RendererSpec& rendererSpec )
+    ResultValueType<RendererStatus> Renderer::Init( RendererSpec& rendererSpec )
     {
         auto result = RendererContext::Create( rendererSpec );
 
         uint32_t tries = 0, maxTries = 3;
-        while ( result.status != RendererContextStatus::Initialized && tries < maxTries )
+        while ( result != RendererContextStatus::Initialized && tries < maxTries )
         {
             result = RendererContext::Create( rendererSpec );
             tries++;
         }
 
-        if ( result.status == RendererContextStatus::Initialized )
+        if ( result == RendererContextStatus::Initialized )
         {
             LOG_INFO( "Created Renderer" );
-            return { RendererStatus::Initialized };
+            return ResultValueType{ RendererStatus::Initialized };
         }
-        else { return { RendererStatus::Fail }; }
+        else { return ResultValueType{ RendererStatus::Fail }; }
     }
 
-    Result<RendererStatus> Renderer::Create( RendererSpec& rendererSpec )
+    ResultValueType<RendererStatus> Renderer::Create( RendererSpec& rendererSpec )
     {
         if ( nullptr == Renderer::GetRenderer() )
         {
             Renderer::s_Renderer = new Renderer();
             return Renderer::s_Renderer->Init( rendererSpec );
         }
-        return { RendererStatus::Fail };
+        return ResultValueType{ RendererStatus::Fail };
     }
 
-    Result<RendererStatus> Renderer::Destroy()
+    ResultValueType<RendererStatus> Renderer::Destroy()
     {
         if ( nullptr != Renderer::GetRenderer() )
         {
             auto result = RendererContext::Destroy();
             uint32_t tries = 0, maxTries = 3;
-            while ( result.status != RendererContextStatus::Destroyed && tries < maxTries )
+            while ( result != RendererContextStatus::Destroyed && tries < maxTries )
             {
                 result = RendererContext::Destroy();
                 tries++;
             }
-            if ( result.status == RendererContextStatus::Destroyed )
+            if ( result == RendererContextStatus::Destroyed )
             {
                 delete Renderer::s_Renderer;
-                return { RendererStatus::Destroyed };
+                return ResultValueType{ RendererStatus::Destroyed };
             }
 
-            return { RendererStatus::Fail };
+            return ResultValueType{ RendererStatus::Fail };
         }
-        return { RendererStatus::Fail };
+        return ResultValueType{ RendererStatus::Fail };
     }
 
     RendererSpec Renderer::GetRendererSpec() { return Renderer::s_Renderer->m_RendererSpec; }

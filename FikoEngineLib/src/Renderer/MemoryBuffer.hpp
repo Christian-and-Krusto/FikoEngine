@@ -32,7 +32,7 @@
  * 
  * @section DESCRIPTION
  * 
- * GraphicsPipeline class definition
+ * Buffer class definition
  */
 
 
@@ -40,18 +40,21 @@
 Includes
 ***********************************************************************************************************************/
 #include <Core/Result.hpp>
-#include "UniformBuffer.hpp"
 #include <vulkan/vulkan.hpp>
-
 
 /***********************************************************************************************************************
 Enum Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    enum class GraphicsPipelineStatus
+    enum class BufferStatus
     {
         Fail,
+        CanNotFindMemoryType,
+        CanNotAllocateMemory,
+        CanNotBindMemory,
+        CanNotMapMemory,
+        Bound,
         Success
     };
 }// namespace FikoEngine
@@ -61,10 +64,6 @@ Struct definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    struct GraphicsPipelineSpec {
-        vk::Format format;
-        vk::Extent2D extent;
-    };
 }// namespace FikoEngine
 
 /***********************************************************************************************************************
@@ -74,29 +73,35 @@ Class definitions
 namespace FikoEngine
 {
 
-    class GraphicsPipeline
+    class MemoryBuffer
     {
     public:
-        GraphicsPipeline() = default;
-        ~GraphicsPipeline();
+        MemoryBuffer() = default;
+        ~MemoryBuffer() = default;
 
-    public:
-        ResultValueType<GraphicsPipelineStatus> Init( vk::Device device, GraphicsPipelineSpec graphicsPipelineSpec );
-        ResultValueType<GraphicsPipelineStatus> Update( vk::Device device, UniformBuffer* uniformBuffer );
+        ResultValueType<BufferStatus> InitMemoryBuffer( vk::PhysicalDevice physicalDevice, vk::Device device,
+                                                        vk::PhysicalDeviceMemoryProperties& memoryProperties,
+                                                        vk::MemoryRequirements& memoryRequirements,
+                                                        vk::MemoryPropertyFlags flags );
 
-        ResultValue<GraphicsPipelineStatus, vk::Pipeline> GetGraphicsPipeline();
-        ResultValue<GraphicsPipelineStatus, vk::PipelineLayout> GetGraphicsPipelineLayout();
-        ResultValue<GraphicsPipelineStatus, GraphicsPipelineSpec> GetGraphicsPipelineSpec();
-        ResultValueType<GraphicsPipelineStatus> Destroy( vk::Device device );
+        ResultValueType<BufferStatus> BindBuffer( vk::Device device, vk::Buffer buffer );
+        ResultValueType<BufferStatus> BindImage( vk::Device device, vk::Image image );
 
-    private:
-        vk::Pipeline m_GraphicsPipeline;
-        vk::PipelineLayout m_GraphicsPipelineLayout;
-        vk::DescriptorSetLayout m_DescriptorSetLayout;
-        vk::DescriptorPool m_DescriptorPool;
-        vk::DescriptorSet m_DescriptorSet;
-        vk::DeviceMemory m_Memory;
+        ResultValueType<BufferStatus> CopyData(vk::Device device,uint8_t* data,size_t size);
 
-        GraphicsPipelineSpec m_GraphicsPipelineSpec;
+        ResultValueType<BufferStatus> DestroyMemoryBuffer( vk::Device device );
+
+        ResultValue<BufferStatus, uint32_t> FindMemoryTypeIndex( vk::PhysicalDeviceMemoryProperties& memoryProperties,
+                                                                 vk::MemoryRequirements& memoryRequirements,
+                                                                 vk::MemoryPropertyFlags propertyFlags );
+        ResultValue<BufferStatus, vk::DeviceMemory>
+        AllocateMemory( vk::PhysicalDevice physicalDevice, vk::Device device,
+                        vk::PhysicalDeviceMemoryProperties& memoryProperties,
+                        vk::MemoryRequirements& memoryRequirements, vk::MemoryPropertyFlags memoryMask );
+
+        const size_t GetBufferSize() const;        
+    protected:
+        size_t m_BufferSize{};
+        vk::DeviceMemory m_BufferMemory{};
     };
 }// namespace FikoEngine

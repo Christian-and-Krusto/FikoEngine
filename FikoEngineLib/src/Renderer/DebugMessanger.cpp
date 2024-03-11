@@ -147,9 +147,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugMessageFunc( VkDebugUtilsMessageSeverityFlag
 
 namespace FikoEngine
 {
-    Result<DebugMessangerStatus> DebugMessanger::Create( vk::Instance& instance )
+    ResultValueType<DebugMessangerStatus> DebugMessanger::Create( vk::Instance& instance )
     {
-        Result<DebugMessangerStatus> result;
+        ResultValueType<DebugMessangerStatus> result;
 #if !defined( NDEBUG )
         DebugMessanger::s_DebugMessanger = new DebugMessanger();
         result = DebugMessanger::Get()->Init( instance );
@@ -196,14 +196,14 @@ Class function Prototypes
 
 namespace FikoEngine
 {
-    Result<DebugMessangerStatus> DebugMessanger::Init( vk::Instance& instance )
+    ResultValueType<DebugMessangerStatus> DebugMessanger::Init( vk::Instance& instance )
     {
         pfnVkCreateDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
                 instance.getProcAddr( "vkCreateDebugUtilsMessengerEXT" ) );
         if ( !pfnVkCreateDebugUtilsMessengerEXT )
         {
             LOG_INFO( "GetInstanceProcAddr: Unable to find pfnVkCreateDebugUtilsMessengerEXT function." );
-            return { DebugMessangerStatus::Fail };
+            return ResultValueType{ DebugMessangerStatus::Fail };
         }
 
         pfnVkDestroyDebugUtilsMessengerEXT = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
@@ -211,7 +211,7 @@ namespace FikoEngine
         if ( !pfnVkDestroyDebugUtilsMessengerEXT )
         {
             LOG_INFO( "GetInstanceProcAddr: Unable to find pfnVkDestroyDebugUtilsMessengerEXT function." );
-            return { DebugMessangerStatus::Fail };
+            return ResultValueType{ DebugMessangerStatus::Fail };
         }
 
         vk::DebugUtilsMessageSeverityFlagsEXT severityFlags( vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
@@ -227,7 +227,7 @@ namespace FikoEngine
                                      .value;
 
         LOG_INFO( "Debug Messanger Created" );
-        return { DebugMessangerStatus::Created };
+        return ResultValueType{ DebugMessangerStatus::Created };
     }
 
 

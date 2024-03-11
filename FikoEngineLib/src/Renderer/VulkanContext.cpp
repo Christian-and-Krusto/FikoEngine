@@ -72,7 +72,7 @@ VulkanContext Class Implementation
 namespace FikoEngine
 {
 
-    Result<VulkanContextStatus> VulkanContext::Create( VulkanSpec spec, Window* windowPtr )
+    ResultValueType<VulkanContextStatus> VulkanContext::Create( VulkanSpec spec, Window* windowPtr )
     {
         VulkanContext::s_VulkanContext = new VulkanContext( spec, windowPtr );
         auto vulkanContextPtr = VulkanContext::Get();
@@ -94,7 +94,7 @@ namespace FikoEngine
             LOG_ERROR( "Could Not Create Window Surface!" );
             return { VulkanContextStatus::Fail };
         }
-        vulkanContextPtr->m_Surface = windowPtr->GetSurface().returnValue;
+        vulkanContextPtr->m_Surface = windowPtr->GetSurface().value;
         LOG_INFO( "Created Window Surface!" );
 
         //Select Physical Device
@@ -112,8 +112,8 @@ namespace FikoEngine
         }
 
         //Create Command Pool
-        auto result = CommandPool::Create( &vulkanContextPtr->m_Device, vulkanContextPtr->m_GraphicsQueueIndex );
-        VulkanContext::Get()->m_CommandPool = result.returnValue;
+        auto result = CommandPool::Create( vulkanContextPtr->m_Device, vulkanContextPtr->m_GraphicsQueueIndex );
+        VulkanContext::Get()->m_CommandPool = result.value;
 
         const std::string source_name = "shader_src";
         shaderc_shader_kind kind = shaderc_glsl_vertex_shader;
@@ -149,7 +149,7 @@ namespace FikoEngine
         return { VulkanContextStatus::Created };
     }
 
-    Result<VulkanContextStatus> VulkanContext::Destroy()
+    ResultValueType<VulkanContextStatus> VulkanContext::Destroy()
     {
         auto vulkanCtxPtr = VulkanContext::Get();
 
@@ -181,7 +181,7 @@ namespace FikoEngine
 
     VulkanContext::VulkanContext( VulkanSpec spec, Window* windowPtr ) : m_WindowPtr( windowPtr ), m_Spec( spec ) {}
 
-    Result<VulkanInstanceStatus> VulkanContext::CreateInstance()
+    ResultValueType<VulkanInstanceStatus> VulkanContext::CreateInstance()
     {
         LOG_INFO( "Creating Vulkan Instance" );
         LOG_INFO( "    Application Name: " + std::string( m_Spec.rendererSpec.AppName ) );
@@ -224,10 +224,10 @@ namespace FikoEngine
 
         VulkanContext::Get()->m_Instance = vk::createInstance( instanceCreateInfo ).value;
 
-        return Result<VulkanInstanceStatus>( VulkanInstanceStatus::Created );
+        return ResultValueType<VulkanInstanceStatus>( VulkanInstanceStatus::Created );
     }
 
-    Result<VulkanPhysicalDeviceStatus> VulkanContext::SelectPhysicalDevice()
+    ResultValueType<VulkanPhysicalDeviceStatus> VulkanContext::SelectPhysicalDevice()
     {
         LOG_INFO( "Found Devices:" );
         std::vector<vk::PhysicalDevice> enumeratedDevices =
@@ -267,7 +267,7 @@ namespace FikoEngine
         return { VulkanPhysicalDeviceStatus::Selected };
     }
 
-    Result<VulkanQueueFamilyStatus> VulkanContext::SelectQueueFamily()
+    ResultValueType<VulkanQueueFamilyStatus> VulkanContext::SelectQueueFamily()
     {
         std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_PhysicalDevice.getQueueFamilyProperties();
 
@@ -328,7 +328,7 @@ namespace FikoEngine
         return { VulkanQueueFamilyStatus::Found };
     }
 
-    Result<VulkanSwapchainStatus> VulkanContext::GetCapabilities()
+    ResultValueType<VulkanSwapchainStatus> VulkanContext::GetCapabilities()
     {
         auto surfaceFormatStatus = m_PhysicalDevice.getSurfaceFormatsKHR( m_Surface );
         if ( vk::Result::eSuccess != surfaceFormatStatus.result )
@@ -369,7 +369,7 @@ namespace FikoEngine
         return { VulkanSwapchainStatus::Success };
     }
 
-    Result<VulkanSwapchainStatus> VulkanContext::CreateSwapchain()
+    ResultValueType<VulkanSwapchainStatus> VulkanContext::CreateSwapchain()
     {
 
         auto queueFamilyStatus = SelectQueueFamily();
@@ -452,7 +452,7 @@ namespace FikoEngine
         return { VulkanSwapchainStatus::Created };
     }
 
-    Result<VulkanDeviceStatus> VulkanContext::CreateDevice()
+    ResultValueType<VulkanDeviceStatus> VulkanContext::CreateDevice()
     {
         auto availableExtensionsStatus = m_PhysicalDevice.enumerateDeviceExtensionProperties();
         if ( vk::Result::eSuccess != availableExtensionsStatus.result )

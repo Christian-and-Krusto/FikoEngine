@@ -12,13 +12,12 @@ TEST( Renderer_Tests, CommandPool_Test1 )
     VKINTERFACE_CREATE_MOCK();
 
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eErrorOutOfHostMemory, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eErrorOutOfHostMemory );
 
     auto result = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( result.status, FikoEngine::CommandPoolState::Fail );
-    ASSERT_EQ( result.returnValue, nullptr );
+    ASSERT_EQ( result.value, nullptr );
 
     VKINTERFACE_DESTROY_MOCK();
 }
@@ -31,13 +30,13 @@ TEST( Renderer_Tests, CommandPool_Test2 )
     VKINTERFACE_CREATE_MOCK();
 
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
-    VKINTERFACE_ON_CREATE_COMMAND_POOL( (
-            FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eErrorOutOfDeviceMemory, VK_NULL_HANDLE ) ) );
+
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eErrorOutOfDeviceMemory );
 
     auto result = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( result.status, FikoEngine::CommandPoolState::Fail );
-    ASSERT_EQ( result.returnValue, nullptr );
+    ASSERT_EQ( result.value, nullptr );
 
     VKINTERFACE_DESTROY_MOCK();
 }
@@ -49,24 +48,23 @@ TEST( Renderer_Tests, CommandPool_Test3 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto result = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( result.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( result.returnValue, nullptr );
+    ASSERT_NE( result.value, nullptr );
 
-    delete result.returnValue;
+    delete result.value;
 
     VKINTERFACE_DESTROY_MOCK();
 }
@@ -78,27 +76,26 @@ TEST( Renderer_Tests, CommandPool_Test4 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
     VKINTERFACE_EXPECT_FREE_COMMAND_BUFFERS().Times( AtLeast( 1 ) );
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -122,34 +119,33 @@ TEST( Renderer_Tests, CommandPool_Test6 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
     VKINTERFACE_EXPECT_COMMAND_BUFFER_BEGIN();
-    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( ( FikoEngine::Result{ vk::Result::eSuccess } ) );
+    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( vk::Result::eSuccess );
 
-    auto resultBegin = resultCreate.returnValue->BeginCommandBuffer( 0 );
+    auto resultBegin = resultCreate.value->BeginCommandBuffer( 0 );
 
     ASSERT_EQ( resultBegin.status, FikoEngine::CommandBufferState::Recording );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
     VKINTERFACE_EXPECT_FREE_COMMAND_BUFFERS().Times( AtLeast( 1 ) );
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -163,29 +159,28 @@ TEST( Renderer_Tests, CommandPool_Test7 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
-    auto resultBegin = resultCreate.returnValue->BeginCommandBuffer( 0 );
+    auto resultBegin = resultCreate.value->BeginCommandBuffer( 0 );
 
     ASSERT_EQ( resultBegin.status, FikoEngine::CommandBufferState::Invalid );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -199,34 +194,33 @@ TEST( Renderer_Tests, CommandPool_Test9 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
-    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( ( FikoEngine::Result{ vk::Result::eErrorOutOfHostMemory } ) );
+    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN(vk::Result::eErrorOutOfHostMemory );
     VKINTERFACE_EXPECT_COMMAND_BUFFER_BEGIN();
 
-    auto resultBegin = resultCreate.returnValue->BeginCommandBuffer( 0 );
+    auto resultBegin = resultCreate.value->BeginCommandBuffer( 0 );
 
     ASSERT_EQ( resultBegin.status, FikoEngine::CommandBufferState::Invalid );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
     VKINTERFACE_EXPECT_FREE_COMMAND_BUFFERS().Times( AtLeast( 1 ) );
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -240,34 +234,33 @@ TEST( Renderer_Tests, CommandPool_Test10 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
-    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( ( FikoEngine::Result{ vk::Result::eErrorOutOfHostMemory } ) );
+    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( vk::Result::eErrorOutOfHostMemory );
     VKINTERFACE_EXPECT_COMMAND_BUFFER_BEGIN();
 
-    auto resultBegin = resultCreate.returnValue->BeginCommandBuffer( 0 );
+    auto resultBegin = resultCreate.value->BeginCommandBuffer( 0 );
 
     ASSERT_EQ( resultBegin.status, FikoEngine::CommandBufferState::Invalid );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
     VKINTERFACE_EXPECT_FREE_COMMAND_BUFFERS().Times( AtLeast( 1 ) );
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -281,40 +274,39 @@ TEST( Renderer_Tests, CommandPool_Test11 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
-    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( ( FikoEngine::Result{ vk::Result::eSuccess } ) );
+    VKINTERFACE_ON_COOMMAND_BUFFER_BEGIN( vk::Result::eSuccess );
     VKINTERFACE_EXPECT_COMMAND_BUFFER_BEGIN();
 
-    auto resultBegin = resultCreate.returnValue->BeginCommandBuffer( 0 );
+    auto resultBegin = resultCreate.value->BeginCommandBuffer( 0 );
     ASSERT_EQ( resultBegin.status, FikoEngine::CommandBufferState::Recording );
 
-    VKINTERFACE_ON_COOMMAND_BUFFER_END( ( FikoEngine::Result{ vk::Result::eSuccess } ) );
+    VKINTERFACE_ON_COOMMAND_BUFFER_END( vk::Result::eSuccess );
     VKINTERFACE_EXPECT_COMMAND_BUFFER_END();
 
-    auto resultEnd = resultCreate.returnValue->EndCommandBuffer( 0 );
+    auto resultEnd = resultCreate.value->EndCommandBuffer( 0 );
 
     ASSERT_EQ( resultEnd.status, FikoEngine::CommandBufferState::Executable );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
     VKINTERFACE_EXPECT_FREE_COMMAND_BUFFERS().Times( AtLeast( 1 ) );
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -328,29 +320,28 @@ TEST( Renderer_Tests, CommandPool_Test12 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
-    auto resultEnd = resultCreate.returnValue->EndCommandBuffer( 0 );
+    auto resultEnd = resultCreate.value->EndCommandBuffer( 0 );
 
     ASSERT_EQ( resultEnd.status, FikoEngine::CommandBufferState::Invalid );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 
@@ -364,31 +355,30 @@ TEST( Renderer_Tests, CommandPool_Test13 )
 
     VKINTERFACE_CREATE_MOCK();
 
-    VKINTERFACE_ON_CREATE_COMMAND_POOL(
-            ( FikoEngine::Result<vk::Result, vk::CommandPool>( vk::Result::eSuccess, VK_NULL_HANDLE ) ) );
+    VKINTERFACE_ON_CREATE_COMMAND_POOL( vk::Result::eSuccess );
 
-    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS(
-            ( []( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) {
-                std::vector<vk::CommandBuffer> buffers;
-                buffers.emplace_back( VK_NULL_HANDLE );
-                return FikoEngine::Result<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
-            } ) );
+    VKINTERFACE_ON_ALLOCATE_COMMAND_BUFFERS( ( []( vk::Device device,
+                                                   const vk::CommandBufferAllocateInfo& allocateInfo ) {
+        std::vector<vk::CommandBuffer> buffers;
+        buffers.emplace_back( VK_NULL_HANDLE );
+        return FikoEngine::ResultValue<vk::Result, std::vector<vk::CommandBuffer>>{ vk::Result::eSuccess, buffers };
+    } ) );
     VKINTERFACE_EXPECT_CREATE_COMMAND_POOL();
     VKITNERFACE_EXPECT_ALLOCATE_COMMAND_BUFFERS();
 
     auto resultCreate = FikoEngine::CommandPool::Create( nullptr, 0 );
 
     ASSERT_EQ( resultCreate.status, FikoEngine::CommandPoolState::Created );
-    ASSERT_NE( resultCreate.returnValue, nullptr );
+    ASSERT_NE( resultCreate.value, nullptr );
 
-    auto resultEnd = resultCreate.returnValue->EndCommandBuffer( 0 );
+    auto resultEnd = resultCreate.value->EndCommandBuffer( 0 );
 
     ASSERT_EQ( resultEnd.status, FikoEngine::CommandBufferState::Invalid );
 
     VKINTERFACE_EXPECT_DESTROY_COMMAND_POOL();
     VKINTERFACE_EXPECT_FREE_COMMAND_BUFFERS().Times( AtLeast( 1 ) );
 
-    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.returnValue );
+    auto resultDestroy = FikoEngine::CommandPool::Destroy( resultCreate.value );
 
     ASSERT_EQ( resultDestroy.status, FikoEngine::CommandPoolState::Destroyed );
 

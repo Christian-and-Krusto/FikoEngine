@@ -40,7 +40,7 @@ TEST( LayerStack_Tests, LayerStack_Test4 )
 
     auto layerStackGetResult = LayerStack::Get();
     ASSERT_EQ( layerStackGetResult.status, LayerStackStatus::Success );
-    ASSERT_NE( layerStackGetResult.returnValue, nullptr );
+    ASSERT_NE( layerStackGetResult.value, nullptr );
 
     layerStackStatus = LayerStack::Destroy();
     ASSERT_EQ( layerStackStatus.status, LayerStackStatus::Destroyed );
@@ -52,7 +52,7 @@ TEST( LayerStack_Tests, LayerStack_Test5 )
 
     auto layerStackGetResult = LayerStack::Get();
     ASSERT_EQ( layerStackGetResult.status, LayerStackStatus::Error );
-    ASSERT_EQ( layerStackGetResult.returnValue, nullptr );
+    ASSERT_EQ( layerStackGetResult.value, nullptr );
 }
 
 TEST( LayerStack_Tests, LayerStack_Test6 )

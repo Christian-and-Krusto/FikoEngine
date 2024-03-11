@@ -75,16 +75,16 @@ namespace FikoEngine
         ~Window();
 
     public:
-        Result<WindowStatus> Init( RendererSpec& rendererSpec );
-        Result<WindowStatus> CreateSurface( vk::Instance instance );
-        Result<WindowStatus> DestroySurface( vk::Instance instance );
-        Result<WindowStatus,vk::SurfaceKHR> GetSurface();
+        ResultValueType<WindowStatus> Init( RendererSpec& rendererSpec );
+        ResultValueType<WindowStatus> CreateSurface( vk::Instance instance );
+        ResultValueType<WindowStatus> DestroySurface( vk::Instance instance );
+        ResultValue<WindowStatus, vk::SurfaceKHR> GetSurface();
 
     public:
-        static Result<WindowStatus, Window*> Create( RendererSpec& rendererSpec );
-        static Result<WindowStatus> Destroy( Window* window );
+        static ResultValue<WindowStatus, Window*> Create( RendererSpec& rendererSpec );
+        static ResultValueType<WindowStatus> Destroy( Window* window );
 
-        static Result<bool, std::vector<std::string>> GetRequiredExtensions();
+        static ResultValue<bool, std::vector<std::string>> GetRequiredExtensions();
 
     private: 
         

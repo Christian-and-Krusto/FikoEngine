@@ -81,16 +81,16 @@ namespace FikoEngine
         LayerStack() = default;
         ~LayerStack() = default;
 
-        static Result<LayerStackStatus> Init();
+        static ResultValueType<LayerStackStatus> Init();
         template <typename T>
-        static Result<LayerStatus> AddLayer();
-        static Result<LayerStatus> RemoveLayer( std::string_view name );
-        static Result<LayerStackStatus> Destroy();
-        static Result<LayerStackStatus, LayerStack*> Get();
-        static Result<LayerStatus, Layer*> GetLayer( std::string_view name );
-        static Result<LayerStatus, const std::vector<Layer*>&> GetLayers();
-        static Result<LayerStackStatus> InitLayers();
-        static Result<LayerStackStatus> DestroyLayers();
+        static ResultValueType<LayerStatus> AddLayer();
+        static ResultValueType<LayerStatus> RemoveLayer( std::string_view name );
+        static ResultValueType<LayerStackStatus> Destroy();
+        static ResultValue<LayerStackStatus, LayerStack*> Get();
+        static ResultValue<LayerStatus, Layer*> GetLayer( std::string_view name );
+        static ResultValue<LayerStatus, std::vector<Layer*>*> GetLayers();
+        static ResultValueType<LayerStackStatus> InitLayers();
+        static ResultValueType<LayerStackStatus> DestroyLayers();
 
     private:
         static LayerStack* s_LayerStack;

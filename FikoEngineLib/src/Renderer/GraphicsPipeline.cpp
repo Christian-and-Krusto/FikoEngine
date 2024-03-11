@@ -62,8 +62,8 @@ namespace FikoEngine
 
     GraphicsPipeline::~GraphicsPipeline() {}
 
-    Result<GraphicsPipelineStatus> GraphicsPipeline::Init( vk::Device device,
-                                                           GraphicsPipelineSpec graphicsPipelineSpec )
+    ResultValueType<GraphicsPipelineStatus> GraphicsPipeline::Init( vk::Device device,
+                                                                    GraphicsPipelineSpec graphicsPipelineSpec )
     {
         m_GraphicsPipelineSpec = graphicsPipelineSpec;
 
@@ -71,10 +71,11 @@ namespace FikoEngine
                                                                    vk::ShaderStageFlagBits::eVertex );
         auto descriptorSetLayoutStatus = device.createDescriptorSetLayout(
                 vk::DescriptorSetLayoutCreateInfo( vk::DescriptorSetLayoutCreateFlags(), descriptorSetLayoutBinding ) );
+        
         if ( vk::Result::eSuccess != descriptorSetLayoutStatus.result )
         {
             LOG_ERROR( "Can Not Create Descriptor Set Layout!" );
-            return { GraphicsPipelineStatus::Fail };
+            return ResultValueType{ GraphicsPipelineStatus::Fail };
         }
         m_DescriptorSetLayout = descriptorSetLayoutStatus.value;
 
@@ -83,7 +84,7 @@ namespace FikoEngine
         if ( vk::Result::eSuccess != pipelineLayoutStatus.result )
         {
             LOG_ERROR( "Can Not Create Graphics Pipeline Layout Layout!" );
-            return { GraphicsPipelineStatus::Fail };
+            return ResultValueType{ GraphicsPipelineStatus::Fail };
         }
         m_GraphicsPipelineLayout = pipelineLayoutStatus.value;
 
@@ -93,7 +94,7 @@ namespace FikoEngine
         if ( vk::Result::eSuccess != descriptorPoolStatus.result )
         {
             LOG_ERROR( "Can Not Create Descriptor Pool!" );
-            return { GraphicsPipelineStatus::Fail };
+            return ResultValueType{ GraphicsPipelineStatus::Fail };
         }
         m_DescriptorPool = descriptorPoolStatus.value;
 
@@ -104,65 +105,70 @@ namespace FikoEngine
         if ( vk::Result::eSuccess != descriptorSetStatus.result )
         {
             LOG_ERROR( "Can Not Allocate Descriptor Sets!" );
-            return { GraphicsPipelineStatus::Fail };
+            return ResultValueType{ GraphicsPipelineStatus::Fail };
         }
         m_DescriptorSet = descriptorSetStatus.value.front();
 
-        return { GraphicsPipelineStatus::Success };
+        return ResultValueType{ GraphicsPipelineStatus::Success };
     }
 
-    Result<GraphicsPipelineStatus> GraphicsPipeline::Update( vk::Device device, UniformBuffer* uniformBuffer )
+    ResultValueType<GraphicsPipelineStatus> GraphicsPipeline::Update( vk::Device device, UniformBuffer* uniformBuffer )
     {
         auto bufferStatus = uniformBuffer->GetBufferHandle();
-        if ( UniformBufferStatus::Success != bufferStatus )
+        if ( BufferStatus::Success != bufferStatus )
         {
             LOG_ERROR( "Can Not Get UniformBuffer handle!" );
-            return { GraphicsPipelineStatus::Fail };
+            return ResultValueType{ GraphicsPipelineStatus::Fail };
         }
         if ( VK_NULL_HANDLE == m_DescriptorSet )
         {
             LOG_ERROR( "Invalid Discriptor Set!" );
-            return { GraphicsPipelineStatus::Fail };
+            return ResultValueType{ GraphicsPipelineStatus::Fail };
         }
 
-        vk::DescriptorBufferInfo descriptorBufferInfo( bufferStatus.returnValue, 0, uniformBuffer->GetSize() );
+        vk::DescriptorBufferInfo descriptorBufferInfo( bufferStatus.value, 0, uniformBuffer->GetSize() );
         vk::WriteDescriptorSet writeDescriptorSet( m_DescriptorSet, 0, 0, vk::DescriptorType::eUniformBuffer, {},
                                                    descriptorBufferInfo );
         device.updateDescriptorSets( writeDescriptorSet, nullptr );
-        return { GraphicsPipelineStatus::Success };
+        return ResultValueType{ GraphicsPipelineStatus::Success };
     }
 
-    Result<GraphicsPipelineStatus, GraphicsPipelineSpec> GraphicsPipeline::GetGraphicsPipelineSpec()
+    ResultValue<GraphicsPipelineStatus, GraphicsPipelineSpec> GraphicsPipeline::GetGraphicsPipelineSpec()
     {
-        return { {}, m_GraphicsPipelineSpec };
+        return { GraphicsPipelineStatus::Success, m_GraphicsPipelineSpec };
     }
 
-    Result<GraphicsPipelineStatus, vk::Pipeline> GraphicsPipeline::GetGraphicsPipeline()
+    ResultValue<GraphicsPipelineStatus, vk::Pipeline> GraphicsPipeline::GetGraphicsPipeline()
     {
-        if ( VK_NULL_HANDLE != m_GraphicsPipeline ) { return { GraphicsPipelineStatus::Fail }; }
-        return { GraphicsPipelineStatus::Success, m_GraphicsPipeline };
+        if ( VK_NULL_HANDLE != m_GraphicsPipeline ) {
+            return ResultValue<GraphicsPipelineStatus, vk::Pipeline>{ GraphicsPipelineStatus::Fail };
+        }
+        return ResultValue{ GraphicsPipelineStatus::Success, m_GraphicsPipeline };
     }
 
-    Result<GraphicsPipelineStatus, vk::PipelineLayout> GraphicsPipeline::GetGraphicsPipelineLayout()
+    ResultValue<GraphicsPipelineStatus, vk::PipelineLayout> GraphicsPipeline::GetGraphicsPipelineLayout()
     {
-        if ( VK_NULL_HANDLE != m_GraphicsPipelineLayout ) { return { GraphicsPipelineStatus::Fail }; }
-        return { GraphicsPipelineStatus::Success, m_GraphicsPipelineLayout };
+        if ( VK_NULL_HANDLE != m_GraphicsPipelineLayout ) {
+            return ResultValue<GraphicsPipelineStatus, vk::PipelineLayout>{ GraphicsPipelineStatus::Fail };
+        }
+        return ResultValue<GraphicsPipelineStatus, vk::PipelineLayout>{ GraphicsPipelineStatus::Success,
+                                                                        m_GraphicsPipelineLayout };
     }
 
-    Result<GraphicsPipelineStatus> GraphicsPipeline::Destroy( vk::Device device )
+    ResultValueType<GraphicsPipelineStatus> GraphicsPipeline::Destroy( vk::Device device )
     {
-        if ( VK_NULL_HANDLE != m_DescriptorPool ) { return { GraphicsPipelineStatus::Fail }; }
-        if ( VK_NULL_HANDLE != m_DescriptorSet ) { return { GraphicsPipelineStatus::Fail }; }
-        
+        if ( VK_NULL_HANDLE != m_DescriptorPool ) { return ResultValueType{ GraphicsPipelineStatus::Fail }; }
+        if ( VK_NULL_HANDLE != m_DescriptorSet ) { return ResultValueType{ GraphicsPipelineStatus::Fail }; }
+
         device.freeDescriptorSets( m_DescriptorPool, m_DescriptorSet );
         device.destroyDescriptorPool( m_DescriptorPool );
 
-        if ( VK_NULL_HANDLE != m_GraphicsPipelineLayout ) { return { GraphicsPipelineStatus::Fail }; }
+        if ( VK_NULL_HANDLE != m_GraphicsPipelineLayout ) { return ResultValueType{ GraphicsPipelineStatus::Fail }; }
         device.destroyPipelineLayout( m_GraphicsPipelineLayout );
 
-        if ( VK_NULL_HANDLE != m_DescriptorSetLayout ) { return { GraphicsPipelineStatus::Fail }; }
+        if ( VK_NULL_HANDLE != m_DescriptorSetLayout ) { return ResultValueType{ GraphicsPipelineStatus::Fail }; }
         device.destroyDescriptorSetLayout( m_DescriptorSetLayout );
-        return { GraphicsPipelineStatus::Success };
+        return ResultValueType{ GraphicsPipelineStatus::Success };
     }
 
 }// namespace FikoEngine

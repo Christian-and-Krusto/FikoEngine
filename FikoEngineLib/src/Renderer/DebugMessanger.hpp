@@ -73,13 +73,13 @@ namespace FikoEngine
         ~DebugMessanger() = default;
 
     public:
-        static Result<DebugMessangerStatus> Create( vk::Instance& instance );
+        static ResultValueType<DebugMessangerStatus> Create( vk::Instance& instance );
         static void Destroy( vk::Instance& instance );
         static DebugMessanger* Get();
         static bool IsDebugExtensionAvailable();
 
     public:
-        Result<DebugMessangerStatus> Init( vk::Instance& instance );
+        ResultValueType<DebugMessangerStatus> Init( vk::Instance& instance );
 
     private:
         vk::DebugUtilsMessengerEXT m_VkDebugMessanger;

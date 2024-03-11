@@ -63,7 +63,7 @@ Window Class Implementation
 namespace FikoEngine
 {
 
-    Result<WindowStatus> Window::Init( RendererSpec& rendererSpec )
+    ResultValueType<WindowStatus> Window::Init( RendererSpec& rendererSpec )
     {
         glfwWindowHint( GLFW_CLIENT_API, GLFW_NO_API );
         glfwWindowHint( GLFW_RESIZABLE, GLFW_FALSE );
@@ -75,15 +75,15 @@ namespace FikoEngine
         if ( !glfwVulkanSupported() )
         {
             LOG_ERROR( "Vulkan API is not supported" );
-            return { WindowStatus::Fail };
+            return ResultValueType{ WindowStatus::Fail };
         }
         else { LOG_INFO( "Found support for Vulkan API" ); }
 
         LOG_INFO( "Created Window" );
-        return { WindowStatus::Created };
+        return ResultValueType{ WindowStatus::Created };
     }
 
-    Result<WindowStatus> Window::CreateSurface( vk::Instance instance )
+    ResultValueType<WindowStatus> Window::CreateSurface( vk::Instance instance )
     {
         WindowStatus status = WindowStatus::Fail;
 
@@ -98,48 +98,47 @@ namespace FikoEngine
         LOG_ERROR("Non Windows platforms not supported at the moment!");
 #endif
 
-        return {status};
+        return ResultValueType{ status };
     }
-    
-    Result<WindowStatus> Window::DestroySurface(vk::Instance instance)
+
+    ResultValueType<WindowStatus> Window::DestroySurface( vk::Instance instance )
     {
         instance.destroySurfaceKHR(m_Surface);
 
-        return {WindowStatus::Surface_Destroyed};
+        return ResultValueType{ WindowStatus::Surface_Destroyed };
     }
-    
-    Result<WindowStatus,vk::SurfaceKHR> Window::GetSurface()
+
+    ResultValue<WindowStatus, vk::SurfaceKHR> Window::GetSurface()
     {
-        if ( VK_NULL_HANDLE == (VkSurfaceKHR)m_Surface)
-        {
-            return {WindowStatus::Fail};
+        if ( VK_NULL_HANDLE == ( VkSurfaceKHR ) m_Surface ) {
+            return ResultValue<WindowStatus, vk::SurfaceKHR>{ WindowStatus::Fail, VK_NULL_HANDLE };
         }
 
-        return {WindowStatus::Success,m_Surface};
+        return ResultValue{ WindowStatus::Success, m_Surface };
     }
 
     Window::~Window() { LOG_INFO( "Destroyed Window" ); }
 
-    Result<WindowStatus, Window*> Window::Create( RendererSpec& rendererSpec )
+    ResultValue<WindowStatus, Window*> Window::Create( RendererSpec& rendererSpec )
     {
         Window* window = new Window();
         auto result = window->Init( rendererSpec );
 
-        return { result.status, window };
+        return ResultValue<WindowStatus, Window*>{ result, window };
     }
 
-    Result<WindowStatus> Window::Destroy( Window* window )
+    ResultValueType<WindowStatus> Window::Destroy( Window* window )
     {
-        if ( nullptr == window ) { return { WindowStatus::Not_Initialized }; }
+        if ( nullptr == window ) { return ResultValueType{ WindowStatus::Not_Initialized }; }
         else
         {
             if ( nullptr != window->m_WindowPtr ) { glfwDestroyWindow( window->m_WindowPtr ); }
             delete window;
-            return { WindowStatus::Destroyed };
+            return ResultValueType{ WindowStatus::Destroyed };
         }
     }
 
-    Result<bool, std::vector<std::string>> Window::GetRequiredExtensions()
+    ResultValue<bool, std::vector<std::string>> Window::GetRequiredExtensions()
     {
         uint32_t count;
         const char** extensions = glfwGetRequiredInstanceExtensions( &count );
@@ -153,7 +152,7 @@ namespace FikoEngine
             output.push_back( std::string( extensions[ i ] ) );
         }
 
-        return { true, output };
+        return ResultValue{ true, output };
     }
 
 }// namespace FikoEngine

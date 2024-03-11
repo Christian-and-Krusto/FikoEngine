@@ -48,17 +48,44 @@ Class definitions
 
 namespace FikoEngine
 {
-    template <typename StatusType = vk::Result, typename RetValueType = uint32_t>
-    struct Result {
+    template <typename T = vk::Result, typename E = uint32_t>
+    struct ResultValue {
+        T status;
+        E value;
+
+        ResultValue() {}
+
+        explicit ResultValue( T status ) : status( status ) {}
+
+        ResultValue( T status, E& value ) : status( status ), value( value ) {}
+
+        ResultValue( T status, E&& value ) : status( status ), value( std::move( value ) ) {}
+
+        explicit ResultValue( vk::ResultValue<E> res )
+        {
+            status = res.result;
+            value = res.value;
+        }
+
+        operator E() { return value; }
+
+        operator const E() const { return value; }
+
+        operator T() { return status; }
+
+        operator const T() const { return status; }
+    };
+
+    template <typename StatusType = vk::Result>
+    struct ResultValueType {
         StatusType status;
-        RetValueType returnValue;
+
+        ResultValueType() {}
+
+        ResultValueType( StatusType status ) : status( status ) {}
 
         operator StatusType() { return status; }
 
         operator const StatusType() const { return status; }
-
-        operator RetValueType() { return returnValue; }
-
-        operator const RetValueType() const { return returnValue; }
     };
 }// namespace FikoEngine

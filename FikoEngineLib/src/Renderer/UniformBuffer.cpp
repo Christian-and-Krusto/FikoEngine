@@ -39,7 +39,7 @@ Includes
 ***********************************************************************************************************************/
 #include "UniformBuffer.hpp"
 #include <Core/Log.hpp>
-#include <vulkan/vulkan.hpp>
+#include <Core/VulkanInterface.hpp>
 
 /***********************************************************************************************************************
 Macro definitions
@@ -59,91 +59,55 @@ UniformBuffer Class Implementation
 
 namespace FikoEngine
 {
-    Result<UniformBufferStatus> UniformBuffer::Init( vk::PhysicalDevice physicalDevice, vk::Device device,
-                                                     uint32_t size, uint8_t* data )
+    ResultValueType<BufferStatus> UniformBuffer::Init( vk::PhysicalDevice physicalDevice, vk::Device device,
+                                                       uint32_t size, uint8_t* data )
     {
-        m_Size = size;
-        auto uniformDataBufferStatus = device.createBuffer(
-                vk::BufferCreateInfo( vk::BufferCreateFlags(), size, vk::BufferUsageFlagBits::eUniformBuffer ) );
-        if ( vk::Result::eSuccess != uniformDataBufferStatus.result )
+        auto uniformDataBufferStatus =
+                vkInterface::CreateBuffer( device, vk::BufferCreateInfo( vk::BufferCreateFlags(), size,
+                                                                         vk::BufferUsageFlagBits::eUniformBuffer ) );
+        if ( vk::Result::eSuccess != uniformDataBufferStatus )
         {
             LOG_ERROR( "Can Not Create Uniform Buffer!" );
-            return { UniformBufferStatus::Fail };
+            return ResultValueType{ BufferStatus::Fail };
         }
         m_Buffer = uniformDataBufferStatus.value;
 
-        auto memoryProperties = physicalDevice.getMemoryProperties();
-        auto memoryRequirements = device.getBufferMemoryRequirements( m_Buffer );
-        auto memoryMask = ( vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent );
+        auto memoryProperties = vkInterface::GetMemoryProperties( physicalDevice ).value;
+        auto memoryRequirements = vkInterface::GetBufferMemoryRequirements( device, m_Buffer ).value;
 
-        uint32_t typeIndex = uint32_t( ~0 );
-        for ( uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++ )
-        {
-            if ( ( memoryRequirements.memoryTypeBits & 1 ) &&
-                 ( ( memoryProperties.memoryTypes[ i ].propertyFlags & memoryMask ) == memoryMask ) )
-            {
-                typeIndex = i;
-                break;
-            }
-            memoryRequirements.memoryTypeBits >>= 1;
-        }
+        auto allocateBufferStatus = InitMemoryBuffer(
+                physicalDevice, device, memoryProperties, memoryRequirements,
+                ( vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent ) );
 
-        if ( typeIndex == uint32_t( ~0 ) )
-        {
-            LOG_ERROR( "Can Not Find Right Memory Type!" );
-            return { UniformBufferStatus::Fail };
-        }
-        auto uniformDataMemoryStatus =
-                device.allocateMemory( vk::MemoryAllocateInfo( memoryRequirements.size, typeIndex ) );
+        if ( BufferStatus::Success != allocateBufferStatus ) { return allocateBufferStatus; }
 
-        if ( vk::Result::eSuccess != uniformDataMemoryStatus.result )
-        {
-            LOG_ERROR( "Can Not Allocate Uniform Buffer Memory!" );
-            return { UniformBufferStatus::Fail };
-        }
-        m_BufferMemory = uniformDataMemoryStatus.value;
-        if ( size > 0 )
-        {
-            auto mapMemoryStatus = device.mapMemory( m_BufferMemory, 0, memoryRequirements.size );
-            if ( vk::Result::eSuccess != uniformDataMemoryStatus.result )
-            {
-                LOG_ERROR( "Can Not Map Uniform Buffer Memory!" );
-                return { UniformBufferStatus::Fail };
-            }
-            uint8_t* pData = static_cast<uint8_t*>( mapMemoryStatus.value );
-            memcpy( pData, &data, size );
-            device.unmapMemory( m_BufferMemory );
+        auto copyStatus = CopyData( device, data, size );
+        if ( BufferStatus::Success != copyStatus ) { return copyStatus; }
 
-            auto bindStatus = device.bindBufferMemory( m_Buffer, m_BufferMemory, 0 );
-            if ( vk::Result::eSuccess != bindStatus )
-            {
-                LOG_ERROR( "Can Not Bind Uniform Buffer Memory!" );
-                return { UniformBufferStatus::Fail };
-            }
-        }
+        auto bindStatus = BindBuffer( device, m_Buffer );
+        if ( BufferStatus::Bound != bindStatus ) { return bindStatus; }
 
-        return {UniformBufferStatus::Success};
+        return ResultValueType{ BufferStatus::Success };
     }
 
-    Result<UniformBufferStatus, vk::Buffer> UniformBuffer::GetBufferHandle()
+    ResultValue<BufferStatus, vk::Buffer> UniformBuffer::GetBufferHandle()
     {
-        if(VK_NULL_HANDLE == m_Buffer)
+        if ( VK_NULL_HANDLE == m_Buffer )
         {
-            return {UniformBufferStatus::Fail};
+            return ResultValue<BufferStatus, vk::Buffer>{ BufferStatus::Fail, VK_NULL_HANDLE };
         }
-        return {UniformBufferStatus::Success,m_Buffer};
+        return ResultValue<BufferStatus, vk::Buffer>{ BufferStatus::Success, m_Buffer };
     }
 
-    Result<UniformBufferStatus> UniformBuffer::Destroy( vk::Device device ) {
-        if ( VK_NULL_HANDLE == m_Buffer ) { return { UniformBufferStatus::Fail }; }
+    ResultValueType<BufferStatus> UniformBuffer::Destroy( vk::Device device )
+    {
+        if ( VK_NULL_HANDLE == m_Buffer ) { return ResultValueType{ BufferStatus::Fail }; }
         device.destroyBuffer( m_Buffer );
-        if ( VK_NULL_HANDLE == m_BufferMemory ) { return { UniformBufferStatus::Fail }; }
-        device.freeMemory( m_BufferMemory );
 
-        return { UniformBufferStatus::Success }; 
+        return DestroyMemoryBuffer( device );
     }
 
-    const size_t UniformBuffer::GetSize() const{ return m_Size; }
+    const size_t UniformBuffer::GetSize() const { return m_Size; }
 
 
 }// namespace FikoEngine

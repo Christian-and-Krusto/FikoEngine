@@ -39,7 +39,6 @@ Includes
 ***********************************************************************************************************************/
 #include "Image.hpp"
 #include <Core/Log.hpp>
-#include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
 Macro definitions
@@ -60,14 +59,88 @@ Image Class Implementation
 namespace FikoEngine
 {
 
-    Image::~Image() {}
-
-    Result<ImageStatus> Image::Init( vk::PhysicalDevice physicalDevice, vk::Device device, ImageSpec imageSpec )
+    ResultValueType<ImageStatus> Image::Init( vk::PhysicalDevice physicalDevice, vk::Device device,
+                                              ImageSpec imageSpec )
     {
         m_ImageSpec = imageSpec;
-        vk::FormatProperties formatProperties = physicalDevice.getFormatProperties( imageSpec.format );
+        vk::FormatProperties formatProperties = vkInterface::GetFormatProperties( physicalDevice, imageSpec.format );
 
+        auto tiling = ChooseImageTiling( formatProperties );
+        if ( ImageStatus::Success != tiling ) { return ResultValueType{ tiling.status }; }
+
+        vk::ImageUsageFlags usageFlags;
+        vk::ImageAspectFlags aspectFlags;
+
+        auto imageFlagsStatus = GetImageFlags( imageSpec.type, usageFlags, aspectFlags );
+        if ( ImageStatus::Success != imageFlagsStatus ) { return imageFlagsStatus; }
+
+        vk::ImageCreateInfo imageCreateInfo( vk::ImageCreateFlags(), vk::ImageType::e2D, imageSpec.format,
+                                             vk::Extent3D( imageSpec.extent, 1 ), 1, 1, vk::SampleCountFlagBits::e1,
+                                             tiling, usageFlags );
+
+        auto imageCreateStatus = vkInterface::CreateImage( device, imageCreateInfo );
+
+        if ( vk::Result::eSuccess != imageCreateStatus )
+        {
+            LOG_ERROR( "Could Not Create Image!" );
+            return ResultValueType{ ImageStatus::Fail };
+        }
+        m_Image = imageCreateStatus;
+
+        auto memoryProperties = vkInterface::GetMemoryProperties( physicalDevice ).value;
+        auto memoryRequirements = vkInterface::GetImageMemoryRequirements( device, m_Image ).value;
+
+        auto allocateBufferStatus = InitMemoryBuffer( physicalDevice, device, memoryProperties, memoryRequirements,
+                                                      ( vk::MemoryPropertyFlagBits::eDeviceLocal ) );
+
+        if ( BufferStatus::Success != allocateBufferStatus )
+        {
+            return BufferStatusToImageStatus( allocateBufferStatus );
+        }
+
+        auto bindStatus = BindImage( device, m_Image );
+        if ( BufferStatus::Bound != bindStatus ) { return BufferStatusToImageStatus( bindStatus ); }
+
+        auto imageViewStatus = CreateImageView( device, aspectFlags );
+        if ( ImageStatus::Success != imageViewStatus ) { return { imageViewStatus }; }
+
+        return ResultValueType{ ImageStatus::Success };
+    }
+
+    ResultValue<ImageStatus, ImageSpec> Image::GetImageSpec()
+    {
+        return ResultValue<ImageStatus, ImageSpec>{ {}, m_ImageSpec };
+    }
+
+    ResultValue<ImageStatus, vk::Image> Image::GetImage()
+    {
+        if ( VK_NULL_HANDLE != m_Image ) { return ResultValue<ImageStatus, vk::Image>{ ImageStatus::Fail }; }
+        return ResultValue<ImageStatus, vk::Image>{ ImageStatus::Success, m_Image };
+    }
+
+    ResultValue<ImageStatus, vk::ImageView> Image::GetImageView()
+    {
+        if ( VK_NULL_HANDLE != m_ImageView ) { return ResultValue<ImageStatus, vk::ImageView>{ ImageStatus::Fail }; }
+        return ResultValue<ImageStatus, vk::ImageView>{ ImageStatus::Success, m_ImageView };
+    }
+
+    ResultValueType<ImageStatus> Image::Destroy( vk::Device device )
+    {
+        if ( VK_NULL_HANDLE != m_Image ) { return ResultValueType{ ImageStatus::Fail }; }
+        device.destroyImage( m_Image );
+        if ( VK_NULL_HANDLE != m_ImageView ) { return ResultValueType{ ImageStatus::Fail }; }
+        device.destroyImageView( m_ImageView );
+
+        auto destroyStatus = DestroyMemoryBuffer( device );
+        if ( BufferStatus::Success != destroyStatus ) { return BufferStatusToImageStatus( destroyStatus ); }
+
+        return { ImageStatus::Success };
+    }
+
+    ResultValue<ImageStatus, vk::ImageTiling> Image::ChooseImageTiling( vk::FormatProperties& formatProperties )
+    {
         vk::ImageTiling tiling;
+
         if ( formatProperties.linearTilingFeatures & vk::FormatFeatureFlagBits::eDepthStencilAttachment )
         {
             tiling = vk::ImageTiling::eLinear;
@@ -79,12 +152,15 @@ namespace FikoEngine
         else
         {
             LOG_ERROR( "DepthStencilAttachment is not supported for D16Unorm depth format." );
-            return { ImageStatus::Fail };
+            return ResultValue<ImageStatus, vk::ImageTiling>{ ImageStatus::CanNotChooseTiling };
         }
+        return ResultValue<ImageStatus, vk::ImageTiling>{ ImageStatus::Success, tiling };
+    }
 
-        vk::ImageUsageFlags usageFlags;
-        vk::ImageAspectFlags aspectFlags;
-        switch ( imageSpec.type )
+    ResultValueType<ImageStatus> Image::GetImageFlags( ImageType type, vk::ImageUsageFlags& usageFlags,
+                                                       vk::ImageAspectFlags& aspectFlags )
+    {
+        switch ( type )
         {
             case ImageType::Depth:
                 usageFlags = vk::ImageUsageFlagBits::eDepthStencilAttachment;
@@ -92,97 +168,57 @@ namespace FikoEngine
                 break;
             default:
                 LOG_ERROR( "Wrong Image Type" );
-                return { ImageStatus::Fail };
+                return ResultValueType{ ImageStatus::CanNotChooseImageFlags };
                 break;
         }
+        return ResultValueType{ ImageStatus::Success };
+    }
 
-        vk::ImageCreateInfo imageCreateInfo( vk::ImageCreateFlags(), vk::ImageType::e2D, imageSpec.format,
-                                             vk::Extent3D( imageSpec.extent, 1 ), 1, 1, vk::SampleCountFlagBits::e1,
-                                             tiling, usageFlags );
+    ResultValueType<ImageStatus> Image::CreateImageView( vk::Device device, vk::ImageAspectFlags aspectFlags )
+    {
 
-        auto imageCreateStatus = device.createImage( imageCreateInfo );
+        vk::ImageViewCreateInfo imageViewCreateInfo( vk::ImageViewCreateFlags(), m_Image, vk::ImageViewType::e2D,
+                                                     m_ImageSpec.format, {}, { aspectFlags, 0, 1, 0, 1 } );
 
-        if ( vk::Result::eSuccess != imageCreateStatus.result )
-        {
-            LOG_ERROR( "Could Not Create Image!" );
-            return { ImageStatus::Fail };
-        }
-        m_Image = imageCreateStatus.value;
-
-        vk::PhysicalDeviceMemoryProperties memoryProperties = physicalDevice.getMemoryProperties();
-        vk::MemoryRequirements memoryRequirements = device.getImageMemoryRequirements( m_Image );
-        uint32_t typeBits = memoryRequirements.memoryTypeBits;
-        uint32_t typeIndex = uint32_t( ~0 );
-        for ( uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++ )
-        {
-            if ( ( typeBits & 1 ) &&
-                 ( ( memoryProperties.memoryTypes[ i ].propertyFlags & vk::MemoryPropertyFlagBits::eDeviceLocal ) ==
-                   vk::MemoryPropertyFlagBits::eDeviceLocal ) )
-            {
-                typeIndex = i;
-                break;
-            }
-            typeBits >>= 1;
-        }
-
-        if ( typeIndex == uint32_t( ~0 ) )
-        {
-            LOG_ERROR( "Can Not Find Correct Memory Type" );
-            return { ImageStatus::Fail };
-        }
-
-        auto depthMemoryStatus = device.allocateMemory( vk::MemoryAllocateInfo( memoryRequirements.size, typeIndex ) );
-        if ( vk::Result::eSuccess != depthMemoryStatus.result )
-        {
-            LOG_ERROR( "Can Not Allocate Image Memory!" );
-            return { ImageStatus::Fail };
-        }
-        m_Memory = depthMemoryStatus.value;
-
-        auto bindStatus = device.bindImageMemory( m_Image, m_Memory, 0 );
-        if ( vk::Result::eSuccess != bindStatus )
-        {
-            LOG_ERROR( "Can Not Bind Image Memory!" );
-            return { ImageStatus::Fail };
-        }
-
-        auto imageViewStatus = device.createImageView(
-                vk::ImageViewCreateInfo( vk::ImageViewCreateFlags(), m_Image, vk::ImageViewType::e2D, imageSpec.format,
-                                         {}, { aspectFlags, 0, 1, 0, 1 } ) );
-        if ( vk::Result::eSuccess != imageViewStatus.result )
+        auto imageViewStatus = vkInterface::CreateImageView( device, imageViewCreateInfo );
+        if ( vk::Result::eSuccess != imageViewStatus )
         {
             LOG_ERROR( "Can Not Create Image View!" );
-            return { ImageStatus::Fail };
+            return { ImageStatus::CanNotCreateImageView };
         }
         m_ImageView = imageViewStatus.value;
 
-        return { ImageStatus::Fail };
-    }
-
-    Result<ImageStatus, ImageSpec> Image::GetImageSpec() { return { {}, m_ImageSpec }; }
-
-    Result<ImageStatus, vk::Image> Image::GetImage()
-    {
-        if ( VK_NULL_HANDLE != m_Image ) { return { ImageStatus::Fail }; }
-        return { ImageStatus::Success, m_Image };
-    }
-
-    Result<ImageStatus, vk::ImageView> Image::GetImageView()
-    {
-        if ( VK_NULL_HANDLE != m_ImageView ) { return { ImageStatus::Fail }; }
-        return { ImageStatus::Success, m_ImageView };
-    }
-
-    Result<ImageStatus> Image::Destroy( vk::Device device )
-    {
-        if ( VK_NULL_HANDLE != m_Image ) { return { ImageStatus::Fail }; }
-        device.destroyImage( m_Image );
-        if ( VK_NULL_HANDLE != m_ImageView ) { return { ImageStatus::Fail }; }
-        device.destroyImageView( m_ImageView );
-        if ( VK_NULL_HANDLE != m_Memory ) { return { ImageStatus::Fail }; }
-        device.freeMemory( m_Memory );
-
         return { ImageStatus::Success };
+    }
+
+    ImageStatus Image::BufferStatusToImageStatus( BufferStatus status )
+    {
+        switch ( status )
+        {
+            case BufferStatus::Fail:
+                return ImageStatus::Fail;
+                break;
+            case BufferStatus::CanNotFindMemoryType:
+                return ImageStatus::CanNotFindMemoryType;
+                break;
+            case BufferStatus::CanNotAllocateMemory:
+                return ImageStatus::CanNotAllocateMemory;
+                break;
+            case BufferStatus::CanNotBindMemory:
+                return ImageStatus::CanNotBindImageMemory;
+                break;
+            case BufferStatus::CanNotMapMemory:
+                return ImageStatus::CanNotMapImageMemory;
+                break;
+            case BufferStatus::Bound:
+                return ImageStatus::Success;
+            case BufferStatus::Success:
+                return ImageStatus::Success;
+                break;
+            default:
+                return ImageStatus::Fail;
+                break;
+        }
     }
 
 }// namespace FikoEngine

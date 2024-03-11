@@ -80,15 +80,16 @@ namespace FikoEngine
         ~CommandPool() = default;
 
     public:
-        Result<CommandBufferState> CreateCommandBuffer();
-        Result<CommandBufferState, vk::CommandBuffer> GetCommandBuffer( uint32_t id = 0 );
+        ResultValueType<CommandBufferState> CreateCommandBuffer();
+        ResultValue<CommandBufferState, vk::CommandBuffer> GetCommandBuffer( uint32_t id = 0 );
 
-        Result<CommandBufferState> BeginCommandBuffer( uint32_t id = 0 );
-        Result<CommandBufferState> EndCommandBuffer( uint32_t id = 0 );
+        ResultValueType<CommandBufferState> BeginCommandBuffer( uint32_t id = 0 );
+        ResultValueType<CommandBufferState> EndCommandBuffer( uint32_t id = 0 );
 
     public:
-        static Result<CommandPoolState, CommandPool*> Create( vk::Device* device, uint32_t graphicsQueueFamilyIndex );
-        static Result<CommandPoolState> Destroy( CommandPool* commandPool );
+        static ResultValue<CommandPoolState, CommandPool*> Create( vk::Device device,
+                                                                   uint32_t graphicsQueueFamilyIndex );
+        static ResultValueType<CommandPoolState> Destroy( CommandPool* commandPool );
 
     public:
         operator VkCommandPool() const { return m_VkCommandPool; }
@@ -97,8 +98,8 @@ namespace FikoEngine
 
     private:
         vk::CommandPool m_VkCommandPool;
-        std::vector<Result<CommandBufferState, vk::CommandBuffer>> m_VkCommandBuffers;
-        vk::Device* m_VkDevice;
+        std::vector<ResultValue<CommandBufferState, vk::CommandBuffer>> m_VkCommandBuffers;
+        vk::Device m_VkDevice;
 
     };
 }// namespace FikoEngine

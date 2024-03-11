@@ -71,12 +71,12 @@ namespace FikoEngine
         ~RendererContext();
 
     public:
-        Result<RendererContextStatus> Init( RendererSpec& rendererSpec );
+        ResultValueType<RendererContextStatus> Init( RendererSpec& rendererSpec );
 
     public:
-        static Result<RendererContextStatus> Create( RendererSpec& rendererSpec );
+        static ResultValueType<RendererContextStatus> Create( RendererSpec& rendererSpec );
 
-        static Result<RendererContextStatus> Destroy();
+        static ResultValueType<RendererContextStatus> Destroy();
 
         static RendererContext* GetRenderer();
 

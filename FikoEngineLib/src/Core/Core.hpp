@@ -3,3 +3,4 @@
 //
 #pragma once
 #include "Log.hpp"
+#include "MockingMacros.hpp"

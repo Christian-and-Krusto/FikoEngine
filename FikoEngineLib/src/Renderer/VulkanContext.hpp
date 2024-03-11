@@ -105,13 +105,12 @@ namespace FikoEngine
         VulkanContext( VulkanSpec spec, Window* windowPtr );
 
     private:
-
-        Result<VulkanInstanceStatus> CreateInstance();
-        Result<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
-        Result<VulkanDeviceStatus> CreateDevice();
-        Result<VulkanQueueFamilyStatus> SelectQueueFamily();
-        Result<VulkanSwapchainStatus> CreateSwapchain();
-        Result<VulkanSwapchainStatus> GetCapabilities();
+        ResultValueType<VulkanInstanceStatus> CreateInstance();
+        ResultValueType<VulkanPhysicalDeviceStatus> SelectPhysicalDevice();
+        ResultValueType<VulkanDeviceStatus> CreateDevice();
+        ResultValueType<VulkanQueueFamilyStatus> SelectQueueFamily();
+        ResultValueType<VulkanSwapchainStatus> CreateSwapchain();
+        ResultValueType<VulkanSwapchainStatus> GetCapabilities();
 
     private:
         Window* m_WindowPtr{};
@@ -133,8 +132,8 @@ namespace FikoEngine
         Image m_DepthImage;
 
     public:
-        static Result<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );
-        static Result<VulkanContextStatus> Destroy();
+        static ResultValueType<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );
+        static ResultValueType<VulkanContextStatus> Destroy();
         static VulkanContext* Get();
 
     private:

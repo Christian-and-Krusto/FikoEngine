@@ -32,56 +32,9 @@
  * 
  * @section DESCRIPTION
  * 
- * Renderer class definition
+ * Mocking Macros
  */
 
-
 /***********************************************************************************************************************
-Includes
+Macros definitions
 ***********************************************************************************************************************/
-#include "RendererSpec.hpp"
-#include <Core/Result.hpp>
-#include <filesystem>
-
-/***********************************************************************************************************************
-Class definitions
-***********************************************************************************************************************/
-
-namespace FikoEngine
-{
-    enum class RendererStatus
-    {
-        Success,
-        Fail,
-        Created,
-        Initialized,
-        Not_Initialized,
-        Destroyed
-    };
-
-    class Renderer
-    {
-    public:
-        Renderer() = default;
-        Renderer( RendererSpec& rendererSpec );
-        ~Renderer();
-
-    public:
-        ResultValueType<RendererStatus> Init( RendererSpec& RendererSpec );
-
-    public:
-        static ResultValueType<RendererStatus> Create( RendererSpec& rendererSpec );
-
-        static ResultValueType<RendererStatus> Destroy();
-
-        static Renderer* GetRenderer();
-
-        static RendererSpec GetRendererSpec();
-
-    private:
-        static Renderer* s_Renderer;
-
-    private:
-        RendererSpec m_RendererSpec;
-    };
-}// namespace FikoEngine

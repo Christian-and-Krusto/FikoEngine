@@ -54,55 +54,188 @@ Class implementation
 namespace FikoEngine
 {
 
-    Result<vk::Result, vk::CommandPool> vkInterface::CreateCommandPool( vk::Device* device,
-                                                                        uint32_t graphicsQueueFamilyIndex )
+    ResultValue<vk::Result, vk::CommandPool> vkInterface::CreateCommandPool( vk::Device device,
+                                                                             uint32_t graphicsQueueFamilyIndex )
     {
         if constexpr ( !s_EnableTest )
         {
-            auto res = device->createCommandPool(
+            auto res = device.createCommandPool(
                     vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
-            return Result<vk::Result, vk::CommandPool>( res.result, res.value );
+            return ResultValue<vk::Result, vk::CommandPool>( res.result, res.value );
         }
 
         return s_MockPtr->_CreateCommandPool( device, graphicsQueueFamilyIndex );
     }
 
-    void vkInterface::DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool )
+    void vkInterface::DestroyCommandPool( vk::Device device, vk::CommandPool commandPool )
     {
-        if constexpr ( !s_EnableTest ) { device->destroyCommandPool( commandPool ); }
+        if constexpr ( !s_EnableTest ) { device.destroyCommandPool( commandPool ); }
         else { s_MockPtr->_DestroyCommandPool( device, commandPool ); }
     }
 
-    void vkInterface::FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer )
+    void vkInterface::FreeCommandBuffers( vk::Device device, vk::CommandPool commandPool, vk::CommandBuffer buffer )
     {
-        if constexpr ( !s_EnableTest ) { device->freeCommandBuffers( commandPool, buffer ); }
+        if constexpr ( !s_EnableTest ) { device.freeCommandBuffers( commandPool, buffer ); }
         else { s_MockPtr->_FreeCommandBuffers( device, commandPool, buffer ); }
     }
 
-    Result<vk::Result, std::vector<vk::CommandBuffer>>
-    vkInterface::AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo )
+    ResultValue<vk::Result, std::vector<vk::CommandBuffer>>
+    vkInterface::AllocateCommandBuffers( vk::Device device, const vk::CommandBufferAllocateInfo& allocateInfo )
     {
         if constexpr ( !s_EnableTest )
         {
-            auto res = device->allocateCommandBuffers( allocateInfo );
+            auto res = device.allocateCommandBuffers( allocateInfo );
             return { res.result, res.value };
         }
 
         return s_MockPtr->_AllocateCommandBuffers( device, allocateInfo );
     }
 
-    Result<vk::Result> vkInterface::CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo )
+    ResultValueType<> vkInterface::CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo )
     {
-        if constexpr ( !s_EnableTest ) { return {buffer.begin( beginInfo )}; }
+        if constexpr ( !s_EnableTest ) { return ResultValueType<>( buffer.begin( beginInfo ) ); }
 
-        return {s_MockPtr->_CommandBufferBegin( buffer, beginInfo )};
+        return { s_MockPtr->_CommandBufferBegin( buffer, beginInfo ) };
     }
 
-    Result<vk::Result> vkInterface::CommandBufferEnd( vk::CommandBuffer buffer )
+    ResultValueType<> vkInterface::CommandBufferEnd( vk::CommandBuffer buffer )
     {
-        if constexpr ( !s_EnableTest ) { return {buffer.end()}; }
+        if constexpr ( !s_EnableTest ) { return ResultValueType<>( buffer.end() ); }
 
-        return {s_MockPtr->_CommandBufferEnd( buffer )};
+        return { s_MockPtr->_CommandBufferEnd( buffer ) };
     }
 
+    ResultValue<vk::Result, vk::FormatProperties> vkInterface::GetFormatProperties( vk::PhysicalDevice physicalDevice,
+                                                                                    vk::Format format )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return { vk::Result::eSuccess, physicalDevice.getFormatProperties( format ) };
+        }
+
+        return s_MockPtr->_GetFormatProperties( physicalDevice, format );
+    }
+
+    ResultValue<vk::Result, vk::Image> vkInterface::CreateImage( vk::Device device,
+                                                                 vk::ImageCreateInfo& imageCreateInfo )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::Image>( device.createImage( imageCreateInfo ) );
+        }
+
+        return s_MockPtr->_CreateImage( device, imageCreateInfo );
+    }
+
+    ResultValue<vk::Result, vk::PhysicalDeviceMemoryProperties>
+    vkInterface::GetMemoryProperties( vk::PhysicalDevice physicalDevice )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::PhysicalDeviceMemoryProperties>( vk::Result::eSuccess,
+                                                                                physicalDevice.getMemoryProperties() );
+        }
+
+        return s_MockPtr->_GetMemoryProperties( physicalDevice );
+    }
+
+    ResultValue<vk::Result, vk::MemoryRequirements> vkInterface::GetImageMemoryRequirements( vk::Device device,
+                                                                                             vk::Image image )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::MemoryRequirements>( vk::Result::eSuccess,
+                                                                    device.getImageMemoryRequirements( image ) );
+        }
+
+        return s_MockPtr->_GetImageMemoryRequirements( device, image );
+    }
+
+    ResultValue<vk::Result, vk::MemoryRequirements> vkInterface::GetBufferMemoryRequirements( vk::Device device,
+                                                                                              vk::Buffer buffer )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::MemoryRequirements>( vk::Result::eSuccess,
+                                                                    device.getBufferMemoryRequirements( buffer ) );
+        }
+
+        return s_MockPtr->_GetBufferMemoryRequirements( device, buffer );
+    }
+
+    ResultValue<vk::Result, vk::DeviceMemory> vkInterface::AllocateMemory( vk::Device device,
+                                                                           vk::MemoryAllocateInfo& memoryAllocateInfo )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::DeviceMemory>( device.allocateMemory( memoryAllocateInfo ) );
+        }
+
+        return s_MockPtr->_AllocateMemory( device, memoryAllocateInfo );
+    }
+
+    ResultValue<vk::Result, vk::ImageView> vkInterface::CreateImageView( vk::Device device,
+                                                                         vk::ImageViewCreateInfo& imageViewCreateInfo )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::ImageView>( device.createImageView( imageViewCreateInfo ) );
+        }
+
+        return s_MockPtr->_CreateImageView( device, imageViewCreateInfo );
+    }
+
+    ResultValueType<> vkInterface::BindImageMemory( vk::Device device, vk::Image image, vk::DeviceMemory memory,
+                                                    vk::DeviceSize memoryOffset )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValueType( device.bindImageMemory( image, memory, memoryOffset ) );
+        }
+
+        return s_MockPtr->_BindImageMemory( device, image, memory, memoryOffset );
+    }
+
+    ResultValueType<> vkInterface::BindBufferMemory( vk::Device device, vk::Buffer buffer, vk::DeviceMemory memory,
+                                                     vk::DeviceSize memoryOffset )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValueType( device.bindBufferMemory( buffer, memory, memoryOffset ) );
+        }
+
+        return s_MockPtr->_BindBufferMemory( device, buffer, memory, memoryOffset );
+    }
+
+    ResultValue<vk::Result, void*> vkInterface::MapMemory( vk::Device device, vk::DeviceMemory memory,
+                                                           vk::DeviceSize offset, vk::DeviceSize size,
+                                                           vk::MemoryMapFlags flags )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, void*>( device.mapMemory( memory, offset, size, flags ) );
+        }
+
+        return s_MockPtr->_MapMemory( device, memory, offset, size, flags );
+    }
+
+    void vkInterface::UnmapMemory( vk::Device device, vk::DeviceMemory memory )
+    {
+        if constexpr ( !s_EnableTest ) { device.unmapMemory( memory ); 
+        return {};
+        }
+
+        return s_MockPtr->_UnmapMemory( device, memory );
+    }
+
+    ResultValue<vk::Result, vk::Buffer> vkInterface::CreateBuffer( vk::Device device,
+                                                                   vk::BufferCreateInfo bufferCreateInfo )
+    {
+        if constexpr ( !s_EnableTest )
+        {
+            return ResultValue<vk::Result, vk::Buffer>( device.createBuffer( bufferCreateInfo ) );
+        }
+
+        return s_MockPtr->_CreateBuffer( device, bufferCreateInfo );
+    }
 }// namespace FikoEngine

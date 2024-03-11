@@ -63,18 +63,53 @@ namespace FikoEngine
         vkInterface() = default;
         ~vkInterface() = default;
 
-        static Result<vk::Result, vk::CommandPool> CreateCommandPool( vk::Device* device,
-                                                                      uint32_t graphicsQueueFamilyIndex );
-        static void DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool );
+        static ResultValue<vk::Result, vk::CommandPool> CreateCommandPool( vk::Device device,
+                                                                           uint32_t graphicsQueueFamilyIndex );
+        static void DestroyCommandPool( vk::Device device, vk::CommandPool commandPool );
 
-        static Result<vk::Result, std::vector<vk::CommandBuffer>>
-        AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo );
-        static void FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
+        static ResultValue<vk::Result, std::vector<vk::CommandBuffer>>
+        AllocateCommandBuffers( vk::Device device, const vk::CommandBufferAllocateInfo& allocateInfo );
+        static void FreeCommandBuffers( vk::Device device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
 
-        static Result<vk::Result> CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo );
+        static ResultValueType<> CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo );
 
-        static Result<vk::Result> CommandBufferEnd( vk::CommandBuffer buffer );
+        static ResultValueType<> CommandBufferEnd( vk::CommandBuffer buffer );
 
+        static ResultValue<vk::Result, vk::FormatProperties> GetFormatProperties( vk::PhysicalDevice physicalDevice,
+                                                                                  vk::Format format );
+
+        static ResultValue<vk::Result, vk::Image> CreateImage( vk::Device device,
+                                                               vk::ImageCreateInfo& imageCreateInfo );
+
+        static ResultValue<vk::Result, vk::PhysicalDeviceMemoryProperties>
+        GetMemoryProperties( vk::PhysicalDevice physicalDevice );
+
+        static ResultValue<vk::Result, vk::MemoryRequirements> GetImageMemoryRequirements( vk::Device device,
+                                                                                           vk::Image image );
+
+        static ResultValue<vk::Result, vk::MemoryRequirements> GetBufferMemoryRequirements( vk::Device device,
+                                                                                           vk::Buffer buffer );
+
+        static ResultValue<vk::Result, vk::DeviceMemory> AllocateMemory( vk::Device device,
+                                                                         vk::MemoryAllocateInfo& memoryAllocateInfo );
+
+        static ResultValue<vk::Result, vk::ImageView> CreateImageView( vk::Device device,
+                                                                       vk::ImageViewCreateInfo& imageViewCreateInfo );
+
+        static ResultValueType<> BindImageMemory( vk::Device device, vk::Image image, vk::DeviceMemory memory,
+                                                  vk::DeviceSize memoryOffset );
+
+        static ResultValueType<> BindBufferMemory( vk::Device device, vk::Buffer buffer, vk::DeviceMemory memory,
+                                                   vk::DeviceSize memoryOffset );
+
+        static ResultValue<vk::Result, void*> MapMemory( vk::Device device, vk::DeviceMemory memory,
+                                                         vk::DeviceSize offset, vk::DeviceSize size,
+                                                         vk::MemoryMapFlags flags );
+
+        static void UnmapMemory(vk::Device device,vk::DeviceMemory memory);
+
+        static ResultValue<vk::Result,vk::Buffer> CreateBuffer(vk::Device device,vk::BufferCreateInfo bufferCreateInfo);
+        
     public:
         template <typename T>
         static void RegisterMockPtr()
@@ -95,18 +130,54 @@ namespace FikoEngine
         }
 
     protected:
-        virtual Result<vk::Result, vk::CommandPool> _CreateCommandPool( vk::Device* device,
-                                                                        uint32_t graphicsQueueFamilyIndex ) = 0;
-        virtual void _DestroyCommandPool( vk::Device* device, vk::CommandPool commandPool ) = 0;
+        virtual ResultValue<vk::Result, vk::CommandPool> _CreateCommandPool( vk::Device device,
+                                                                             uint32_t graphicsQueueFamilyIndex ) = 0;
 
-        virtual Result<vk::Result, std::vector<vk::CommandBuffer>>
-        _AllocateCommandBuffers( vk::Device* device, const vk::CommandBufferAllocateInfo& allocateInfo ) = 0;
-        virtual void _FreeCommandBuffers( vk::Device* device, vk::CommandPool commandPool,
+        virtual void _DestroyCommandPool( vk::Device device, vk::CommandPool commandPool ) = 0;
+
+        virtual ResultValue<vk::Result, std::vector<vk::CommandBuffer>>
+        _AllocateCommandBuffers( vk::Device device, const vk::CommandBufferAllocateInfo& allocateInfo ) = 0;
+        virtual void _FreeCommandBuffers( vk::Device device, vk::CommandPool commandPool,
                                           vk::CommandBuffer buffer ) = 0;
 
-        virtual Result<vk::Result> _CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo ) = 0;
+        virtual ResultValueType<> _CommandBufferBegin( vk::CommandBuffer buffer,
+                                                       vk::CommandBufferBeginInfo beginInfo ) = 0;
 
-        virtual Result<vk::Result> _CommandBufferEnd( vk::CommandBuffer buffer ) = 0;
+        virtual ResultValueType<> _CommandBufferEnd( vk::CommandBuffer buffer ) = 0;
+
+        virtual ResultValue<vk::Result, vk::FormatProperties> _GetFormatProperties( vk::PhysicalDevice physicalDevice,
+                                                                                    vk::Format format ) = 0;
+
+        virtual ResultValue<vk::Result, vk::Image> _CreateImage( vk::Device device,
+                                                                 vk::ImageCreateInfo& imageCreateInfo ) = 0;
+
+        virtual ResultValue<vk::Result, vk::PhysicalDeviceMemoryProperties>
+        _GetMemoryProperties( vk::PhysicalDevice physicalDevice ) = 0;
+
+        virtual ResultValue<vk::Result, vk::MemoryRequirements> _GetImageMemoryRequirements( vk::Device device,
+                                                                                             vk::Image image ) = 0;
+
+        virtual ResultValue<vk::Result, vk::MemoryRequirements> _GetBufferMemoryRequirements( vk::Device device,
+                                                                                             vk::Buffer buffer ) = 0;
+                                                                                             
+        virtual ResultValue<vk::Result, vk::DeviceMemory>
+        _AllocateMemory( vk::Device device, vk::MemoryAllocateInfo& memoryAllocateInfo ) = 0;
+
+        virtual ResultValue<vk::Result, vk::ImageView>
+        _CreateImageView( vk::Device device, vk::ImageViewCreateInfo& imageViewCreateInfo ) = 0;
+
+        virtual ResultValueType<> _BindImageMemory( vk::Device device, vk::Image image, vk::DeviceMemory memory,
+                                                    vk::DeviceSize memoryOffset ) = 0;
+
+        virtual ResultValueType<> _BindBufferMemory( vk::Device device, vk::Buffer buffer, vk::DeviceMemory memory,
+                                                     vk::DeviceSize memoryOffset ) = 0;
+        virtual ResultValue<vk::Result, void*> _MapMemory( vk::Device device, vk::DeviceMemory memory,
+                                                           vk::DeviceSize offset, vk::DeviceSize size,
+                                                           vk::MemoryMapFlags flags ) = 0;
+
+        virtual void _UnmapMemory( vk::Device device, vk::DeviceMemory memory ) = 0;
+        virtual ResultValue<vk::Result, vk::Buffer> _CreateBuffer( vk::Device device,
+                                                                 vk::BufferCreateInfo bufferCreateInfo ) =0;
 
     public:
         inline static vkInterface* s_MockPtr = nullptr;

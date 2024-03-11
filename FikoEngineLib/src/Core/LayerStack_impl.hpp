@@ -52,18 +52,18 @@ Class definitions
 ***********************************************************************************************************************/
 namespace FikoEngine
 {
-    inline Result<LayerStackStatus> LayerStack::Init()
+    inline ResultValueType<LayerStackStatus> LayerStack::Init()
     {
-        if ( LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+        if ( LayerStack::s_LayerStack ) { return ResultValueType( LayerStackStatus::Error ); }
 
         s_LayerStack = new LayerStack();
-        return { LayerStackStatus::Initialized };
+        return ResultValueType( LayerStackStatus::Initialized );
     }
 
     template <typename T>
-    inline Result<LayerStatus> LayerStack::AddLayer()
+    inline ResultValueType<LayerStatus> LayerStack::AddLayer()
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValueType( LayerStatus::Error ); }
 
         LayerStack::s_LayerStack->m_Layers.emplace_back( new T() );
         LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " added!" );
@@ -74,9 +74,9 @@ namespace FikoEngine
         return { LayerStatus::Added };
     }
 
-    Result<LayerStatus> LayerStack::RemoveLayer( std::string_view name )
+    ResultValueType<LayerStatus> LayerStack::RemoveLayer( std::string_view name )
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValueType( LayerStatus::Error ); }
 
         uint32_t index = 0;
         for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
@@ -91,15 +91,15 @@ namespace FikoEngine
             }
             index++;
         }
-        return { LayerStatus::Removed };
+        return ResultValueType( LayerStatus::Removed );
     }
 
-    inline Result<LayerStackStatus> LayerStack::Destroy()
+    inline ResultValueType<LayerStackStatus> LayerStack::Destroy()
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValueType( LayerStackStatus::Error ); }
 
         auto status = LayerStack::DestroyLayers();
-        if ( LayerStackStatus::Destroyed != status ) { return { LayerStackStatus::Error }; }
+        if ( LayerStackStatus::Destroyed != status ) { return ResultValueType( LayerStackStatus::Error ); }
 
         for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
@@ -110,49 +110,53 @@ namespace FikoEngine
         delete LayerStack::s_LayerStack;
         LayerStack::s_LayerStack = nullptr;
 
-        return { LayerStackStatus::Destroyed };
+        return ResultValueType( LayerStackStatus::Destroyed );
     }
 
-    inline Result<LayerStackStatus, LayerStack*> LayerStack::Get()
+    inline ResultValue<LayerStackStatus, LayerStack*> LayerStack::Get()
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error, nullptr }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValue( LayerStackStatus::Error, ( LayerStack* ) nullptr ); }
 
-        return { LayerStackStatus::Success, s_LayerStack };
+        return ResultValue( LayerStackStatus::Success, s_LayerStack );
     }
 
-    Result<LayerStatus, Layer*> LayerStack::GetLayer( std::string_view name )
+    ResultValue<LayerStatus, Layer*> LayerStack::GetLayer( std::string_view name )
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error, nullptr }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValue( LayerStatus::Error, ( Layer* ) nullptr ); }
 
         for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
-            if ( layer->GetName() == std::string( name ) ) { return { LayerStatus::Success, layer }; }
+            if ( layer->GetName() == std::string( name ) ) { return ResultValue( LayerStatus::Success, layer ); }
         }
-        return { LayerStatus::Error, nullptr };
+        return ResultValue( LayerStatus::Error, ( Layer* ) nullptr );
     }
 
-    inline Result<LayerStatus, const std::vector<Layer*>&> LayerStack::GetLayers()
+    inline ResultValue<LayerStatus, std::vector<Layer*>*> LayerStack::GetLayers()
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStatus::Error, {} }; }
+        if ( !LayerStack::s_LayerStack )
+        {
+            return ResultValue( LayerStatus::Error,(std::vector<Layer*>*)nullptr);
+        }
 
-        return { LayerStatus::Success, LayerStack::s_LayerStack->m_Layers };
+        return ResultValue<LayerStatus, std::vector<Layer*>*>( LayerStatus::Success,
+                                                                    &LayerStack::s_LayerStack->m_Layers );
     }
 
-    inline Result<LayerStackStatus> LayerStack::InitLayers()
+    inline ResultValueType<LayerStackStatus> LayerStack::InitLayers()
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValueType( LayerStackStatus::Error ); }
 
         for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
             layer->Init();
             LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " initialized!" );
         }
-        return { LayerStackStatus::Initialized };
+        return ResultValueType( LayerStackStatus::Initialized );
     }
 
-    inline Result<LayerStackStatus> LayerStack::DestroyLayers()
+    inline ResultValueType<LayerStackStatus> LayerStack::DestroyLayers()
     {
-        if ( !LayerStack::s_LayerStack ) { return { LayerStackStatus::Error }; }
+        if ( !LayerStack::s_LayerStack ) { return ResultValueType( LayerStackStatus::Error ); }
         for ( auto& layer: LayerStack::s_LayerStack->m_Layers )
         {
             layer->Destroy();
@@ -161,7 +165,7 @@ namespace FikoEngine
             layer->OnDettach();
             LOG_INFO( "Layer " + LayerStack::s_LayerStack->m_Layers.back()->GetName() + " dettached!" );
         }
-        return { LayerStackStatus::Destroyed };
+        return ResultValueType( LayerStackStatus::Destroyed );
     }
 
 }// namespace FikoEngine
