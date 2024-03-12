@@ -79,22 +79,23 @@ namespace FikoEngine
         MemoryBuffer() = default;
         ~MemoryBuffer() = default;
 
-        ResultValueType<BufferStatus> InitMemoryBuffer( vk::PhysicalDevice physicalDevice, vk::Device device,
+        virtual ResultValueType<BufferStatus> InitMemoryBuffer( vk::PhysicalDevice physicalDevice, vk::Device device,
                                                         vk::PhysicalDeviceMemoryProperties& memoryProperties,
                                                         vk::MemoryRequirements& memoryRequirements,
                                                         vk::MemoryPropertyFlags flags );
 
-        ResultValueType<BufferStatus> BindBuffer( vk::Device device, vk::Buffer buffer );
-        ResultValueType<BufferStatus> BindImage( vk::Device device, vk::Image image );
+        virtual ResultValueType<BufferStatus> BindBuffer( vk::Device device, vk::Buffer buffer );
+        virtual ResultValueType<BufferStatus> BindImage( vk::Device device, vk::Image image );
 
-        ResultValueType<BufferStatus> CopyData(vk::Device device,uint8_t* data,size_t size);
+        virtual ResultValueType<BufferStatus> CopyData( vk::Device device, uint8_t* data, size_t size );
 
-        ResultValueType<BufferStatus> DestroyMemoryBuffer( vk::Device device );
+        virtual ResultValueType<BufferStatus> DestroyMemoryBuffer( vk::Device device );
 
-        ResultValue<BufferStatus, uint32_t> FindMemoryTypeIndex( vk::PhysicalDeviceMemoryProperties& memoryProperties,
-                                                                 vk::MemoryRequirements& memoryRequirements,
-                                                                 vk::MemoryPropertyFlags propertyFlags );
-        ResultValue<BufferStatus, vk::DeviceMemory>
+        virtual ResultValue<BufferStatus, uint32_t>
+        FindMemoryTypeIndex( vk::PhysicalDeviceMemoryProperties& memoryProperties,
+                             vk::MemoryRequirements& memoryRequirements, vk::MemoryPropertyFlags propertyFlags );
+                             
+        virtual ResultValue<BufferStatus, vk::DeviceMemory>
         AllocateMemory( vk::PhysicalDevice physicalDevice, vk::Device device,
                         vk::PhysicalDeviceMemoryProperties& memoryProperties,
                         vk::MemoryRequirements& memoryRequirements, vk::MemoryPropertyFlags memoryMask );

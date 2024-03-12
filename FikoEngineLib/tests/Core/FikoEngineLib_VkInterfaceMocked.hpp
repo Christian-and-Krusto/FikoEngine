@@ -126,7 +126,7 @@ public:
 
 #define VKINTERFACE_EXPECT_CREATE_IMAGE_VIEW() EXPECT_CALL( *mockRef, _CreateImageView )
 #define VKINTERFACE_ON_CREATE_IMAGE_VIEW( retVal )                                                                     \
-    ON_CALL( *mockRef, _CreateImageView( _, _ ) ).WillByDefault( Return( retVal ) );
+    ON_CALL( *mockRef, _CreateImageView( _, _ ) ).WillByDefault( Return( VKRESULT( vk::ImageView, retVal ) ) );
 
 #define VKINTERFACE_EXPECT_BIND_IMAGE_MEMORY() EXPECT_CALL( *mockRef, _BindImageMemory )
 #define VKINTERFACE_ON_BIND_IMAGE_MEMORY( retVal )                                                                     \

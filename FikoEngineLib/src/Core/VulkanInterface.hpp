@@ -69,6 +69,7 @@ namespace FikoEngine
 
         static ResultValue<vk::Result, std::vector<vk::CommandBuffer>>
         AllocateCommandBuffers( vk::Device device, const vk::CommandBufferAllocateInfo& allocateInfo );
+        
         static void FreeCommandBuffers( vk::Device device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
 
         static ResultValueType<> CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo );
@@ -109,7 +110,7 @@ namespace FikoEngine
         static void UnmapMemory(vk::Device device,vk::DeviceMemory memory);
 
         static ResultValue<vk::Result,vk::Buffer> CreateBuffer(vk::Device device,vk::BufferCreateInfo bufferCreateInfo);
-        
+
     public:
         template <typename T>
         static void RegisterMockPtr()

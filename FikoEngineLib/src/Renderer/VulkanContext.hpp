@@ -129,7 +129,7 @@ namespace FikoEngine
         vk::Extent2D m_SwapchainExtent;
         std::vector<vk::Image> m_Images;
         std::vector<vk::ImageView> m_ImageViews;
-        Image m_DepthImage;
+        Image<> m_DepthImage;
 
     public:
         static ResultValueType<VulkanContextStatus> Create( VulkanSpec spec, Window* windowPtr );

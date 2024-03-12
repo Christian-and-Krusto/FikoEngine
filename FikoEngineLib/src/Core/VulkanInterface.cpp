@@ -221,9 +221,7 @@ namespace FikoEngine
 
     void vkInterface::UnmapMemory( vk::Device device, vk::DeviceMemory memory )
     {
-        if constexpr ( !s_EnableTest ) { device.unmapMemory( memory ); 
-        return {};
-        }
+        if constexpr ( !s_EnableTest ) { device.unmapMemory( memory ); }
 
         return s_MockPtr->_UnmapMemory( device, memory );
     }

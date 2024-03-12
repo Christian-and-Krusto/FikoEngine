@@ -59,8 +59,9 @@ Image Class Implementation
 namespace FikoEngine
 {
 
-    ResultValueType<ImageStatus> Image::Init( vk::PhysicalDevice physicalDevice, vk::Device device,
-                                              ImageSpec imageSpec )
+    template <typename T>
+    ResultValueType<ImageStatus> Image<T>::Init( vk::PhysicalDevice physicalDevice, vk::Device device,
+                                                 ImageSpec imageSpec )
     {
         m_ImageSpec = imageSpec;
         vk::FormatProperties formatProperties = vkInterface::GetFormatProperties( physicalDevice, imageSpec.format );
@@ -90,7 +91,7 @@ namespace FikoEngine
         auto memoryProperties = vkInterface::GetMemoryProperties( physicalDevice ).value;
         auto memoryRequirements = vkInterface::GetImageMemoryRequirements( device, m_Image ).value;
 
-        auto allocateBufferStatus = InitMemoryBuffer( physicalDevice, device, memoryProperties, memoryRequirements,
+        auto allocateBufferStatus = m_MemoryBuffer.InitMemoryBuffer( physicalDevice, device, memoryProperties, memoryRequirements,
                                                       ( vk::MemoryPropertyFlagBits::eDeviceLocal ) );
 
         if ( BufferStatus::Success != allocateBufferStatus )
@@ -98,7 +99,7 @@ namespace FikoEngine
             return BufferStatusToImageStatus( allocateBufferStatus );
         }
 
-        auto bindStatus = BindImage( device, m_Image );
+        auto bindStatus = m_MemoryBuffer.BindImage( device, m_Image );
         if ( BufferStatus::Bound != bindStatus ) { return BufferStatusToImageStatus( bindStatus ); }
 
         auto imageViewStatus = CreateImageView( device, aspectFlags );
@@ -107,37 +108,48 @@ namespace FikoEngine
         return ResultValueType{ ImageStatus::Success };
     }
 
-    ResultValue<ImageStatus, ImageSpec> Image::GetImageSpec()
+    template <typename T>
+    ResultValue<ImageStatus, ImageSpec> Image<T>::GetImageSpec()
     {
         return ResultValue<ImageStatus, ImageSpec>{ {}, m_ImageSpec };
     }
 
-    ResultValue<ImageStatus, vk::Image> Image::GetImage()
+    template <typename T>
+    ResultValue<ImageStatus, vk::Image> Image<T>::GetImage()
     {
         if ( VK_NULL_HANDLE != m_Image ) { return ResultValue<ImageStatus, vk::Image>{ ImageStatus::Fail }; }
         return ResultValue<ImageStatus, vk::Image>{ ImageStatus::Success, m_Image };
     }
 
-    ResultValue<ImageStatus, vk::ImageView> Image::GetImageView()
+    template <typename T>
+    ResultValue<ImageStatus, vk::ImageView> Image<T>::GetImageView()
     {
         if ( VK_NULL_HANDLE != m_ImageView ) { return ResultValue<ImageStatus, vk::ImageView>{ ImageStatus::Fail }; }
         return ResultValue<ImageStatus, vk::ImageView>{ ImageStatus::Success, m_ImageView };
     }
 
-    ResultValueType<ImageStatus> Image::Destroy( vk::Device device )
+    template <typename T>
+    ResultValueType<ImageStatus> Image<T>::Destroy( vk::Device device )
     {
         if ( VK_NULL_HANDLE != m_Image ) { return ResultValueType{ ImageStatus::Fail }; }
         device.destroyImage( m_Image );
         if ( VK_NULL_HANDLE != m_ImageView ) { return ResultValueType{ ImageStatus::Fail }; }
         device.destroyImageView( m_ImageView );
 
-        auto destroyStatus = DestroyMemoryBuffer( device );
+        auto destroyStatus = m_MemoryBuffer.DestroyMemoryBuffer( device );
         if ( BufferStatus::Success != destroyStatus ) { return BufferStatusToImageStatus( destroyStatus ); }
 
         return { ImageStatus::Success };
     }
 
-    ResultValue<ImageStatus, vk::ImageTiling> Image::ChooseImageTiling( vk::FormatProperties& formatProperties )
+    template<typename T>
+    inline T& Image<T>::GetMemoryBuffer()
+    {
+        return m_MemoryBuffer;
+    }
+
+    template <typename T>
+    ResultValue<ImageStatus, vk::ImageTiling> Image<T>::ChooseImageTiling( vk::FormatProperties& formatProperties )
     {
         vk::ImageTiling tiling;
 
@@ -157,7 +169,8 @@ namespace FikoEngine
         return ResultValue<ImageStatus, vk::ImageTiling>{ ImageStatus::Success, tiling };
     }
 
-    ResultValueType<ImageStatus> Image::GetImageFlags( ImageType type, vk::ImageUsageFlags& usageFlags,
+    template <typename T>
+    ResultValueType<ImageStatus> Image<T>::GetImageFlags( ImageType type, vk::ImageUsageFlags& usageFlags,
                                                        vk::ImageAspectFlags& aspectFlags )
     {
         switch ( type )
@@ -174,7 +187,8 @@ namespace FikoEngine
         return ResultValueType{ ImageStatus::Success };
     }
 
-    ResultValueType<ImageStatus> Image::CreateImageView( vk::Device device, vk::ImageAspectFlags aspectFlags )
+    template <typename T>
+    ResultValueType<ImageStatus> Image<T>::CreateImageView( vk::Device device, vk::ImageAspectFlags aspectFlags )
     {
 
         vk::ImageViewCreateInfo imageViewCreateInfo( vk::ImageViewCreateFlags(), m_Image, vk::ImageViewType::e2D,
@@ -191,7 +205,8 @@ namespace FikoEngine
         return { ImageStatus::Success };
     }
 
-    ImageStatus Image::BufferStatusToImageStatus( BufferStatus status )
+    template <typename T>
+    ImageStatus Image<T>::BufferStatusToImageStatus( BufferStatus status )
     {
         switch ( status )
         {

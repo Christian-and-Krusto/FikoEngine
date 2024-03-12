@@ -87,7 +87,8 @@ Class definitions
 namespace FikoEngine
 {
 
-    class Image : public MemoryBuffer
+    template< typename T = MemoryBuffer>
+    class Image
     {
     public:
         Image() = default;
@@ -99,7 +100,8 @@ namespace FikoEngine
         ResultValue<ImageStatus, vk::ImageView> GetImageView();
         ResultValue<ImageStatus, ImageSpec> GetImageSpec();
         ResultValueType<ImageStatus> Destroy( vk::Device device );
-
+        T& GetMemoryBuffer();
+        
     private:
         ResultValueType<ImageStatus> CreateImageView( vk::Device device, vk::ImageAspectFlags aspectFlags);
 
@@ -114,8 +116,10 @@ namespace FikoEngine
     private:
         vk::Image m_Image;
         vk::ImageView m_ImageView;
-
         ImageSpec m_ImageSpec;
+        T m_MemoryBuffer;
         
     };
 }// namespace FikoEngine
+
+#include "Image_impl.hpp"
