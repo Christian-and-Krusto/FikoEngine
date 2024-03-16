@@ -40,6 +40,7 @@
 Includes
 ***********************************************************************************************************************/
 #include <Core/Result.hpp>
+#define VULKAN_HPP_DISABLE_ENHANCED_MODE
 #include <vulkan/vulkan.hpp>
 
 /***********************************************************************************************************************
@@ -65,11 +66,12 @@ namespace FikoEngine
 
         static ResultValue<vk::Result, vk::CommandPool> CreateCommandPool( vk::Device device,
                                                                            uint32_t graphicsQueueFamilyIndex );
+
         static void DestroyCommandPool( vk::Device device, vk::CommandPool commandPool );
 
         static ResultValue<vk::Result, std::vector<vk::CommandBuffer>>
         AllocateCommandBuffers( vk::Device device, const vk::CommandBufferAllocateInfo& allocateInfo );
-        
+
         static void FreeCommandBuffers( vk::Device device, vk::CommandPool commandPool, vk::CommandBuffer buffer );
 
         static ResultValueType<> CommandBufferBegin( vk::CommandBuffer buffer, vk::CommandBufferBeginInfo beginInfo );
@@ -89,7 +91,7 @@ namespace FikoEngine
                                                                                            vk::Image image );
 
         static ResultValue<vk::Result, vk::MemoryRequirements> GetBufferMemoryRequirements( vk::Device device,
-                                                                                           vk::Buffer buffer );
+                                                                                            vk::Buffer buffer );
 
         static ResultValue<vk::Result, vk::DeviceMemory> AllocateMemory( vk::Device device,
                                                                          vk::MemoryAllocateInfo& memoryAllocateInfo );
@@ -107,9 +109,10 @@ namespace FikoEngine
                                                          vk::DeviceSize offset, vk::DeviceSize size,
                                                          vk::MemoryMapFlags flags );
 
-        static void UnmapMemory(vk::Device device,vk::DeviceMemory memory);
+        static void UnmapMemory( vk::Device device, vk::DeviceMemory memory );
 
-        static ResultValue<vk::Result,vk::Buffer> CreateBuffer(vk::Device device,vk::BufferCreateInfo bufferCreateInfo);
+        static ResultValue<vk::Result, vk::Buffer> CreateBuffer( vk::Device device,
+                                                                 vk::BufferCreateInfo bufferCreateInfo );
 
     public:
         template <typename T>
@@ -159,8 +162,8 @@ namespace FikoEngine
                                                                                              vk::Image image ) = 0;
 
         virtual ResultValue<vk::Result, vk::MemoryRequirements> _GetBufferMemoryRequirements( vk::Device device,
-                                                                                             vk::Buffer buffer ) = 0;
-                                                                                             
+                                                                                              vk::Buffer buffer ) = 0;
+
         virtual ResultValue<vk::Result, vk::DeviceMemory>
         _AllocateMemory( vk::Device device, vk::MemoryAllocateInfo& memoryAllocateInfo ) = 0;
 
@@ -178,7 +181,7 @@ namespace FikoEngine
 
         virtual void _UnmapMemory( vk::Device device, vk::DeviceMemory memory ) = 0;
         virtual ResultValue<vk::Result, vk::Buffer> _CreateBuffer( vk::Device device,
-                                                                 vk::BufferCreateInfo bufferCreateInfo ) =0;
+                                                                   vk::BufferCreateInfo bufferCreateInfo ) = 0;
 
     public:
         inline static vkInterface* s_MockPtr = nullptr;
@@ -190,3 +193,5 @@ namespace FikoEngine
 #endif
     };
 }// namespace FikoEngine
+
+#include "VulkanInterface_impl.hpp"

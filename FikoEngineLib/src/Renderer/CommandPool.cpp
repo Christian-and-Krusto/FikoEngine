@@ -61,6 +61,8 @@ namespace FikoEngine
     ResultValue<CommandPoolState, CommandPool*> CommandPool::Create( vk::Device device,
                                                                      uint32_t graphicsQueueFamilyIndex )
     {
+
+
         CommandPool* commandPool = new CommandPool();
 
         commandPool->m_VkDevice = device;

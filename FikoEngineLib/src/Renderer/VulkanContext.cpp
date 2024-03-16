@@ -145,6 +145,7 @@ namespace FikoEngine
         std::cout << "Compiled to an optimized binary module with " << spirv.size() << " words." << std::endl;
 
 
+
         LOG_INFO( "Vulkan Context Created!" );
         return { VulkanContextStatus::Created };
     }

@@ -52,7 +52,8 @@ Type definitions
 /***********************************************************************************************************************
 Static variables
 ***********************************************************************************************************************/
-FikoEngine::Renderer* FikoEngine::Renderer::s_Renderer = nullptr;
+template <typename RendererContextType>
+FikoEngine::Renderer<RendererContextType>* FikoEngine::Renderer<RendererContextType>::s_Renderer = nullptr;
 
 /***********************************************************************************************************************
 Renderer Class Implementation
@@ -60,18 +61,27 @@ Renderer Class Implementation
 
 namespace FikoEngine
 {
-    Renderer::Renderer( RendererSpec& rendererSpec ) { Init( rendererSpec ); }
-
-    Renderer::~Renderer() { LOG_INFO( "Destroyed Renderer" ); }
-
-    ResultValueType<RendererStatus> Renderer::Init( RendererSpec& rendererSpec )
+    template <typename RendererContextType>
+    Renderer<RendererContextType>::Renderer( RendererSpec& rendererSpec )
     {
-        auto result = RendererContext::Create( rendererSpec );
+        Init( rendererSpec );
+    }
+
+    template <typename RendererContextType>
+    Renderer<RendererContextType>::~Renderer()
+    {
+        LOG_INFO( "Destroyed Renderer" );
+    }
+
+    template <typename RendererContextType>
+    ResultValueType<RendererStatus> Renderer<RendererContextType>::Init( RendererSpec& rendererSpec )
+    {
+        auto result = RendererContextType::Create( rendererSpec );
 
         uint32_t tries = 0, maxTries = 3;
         while ( result != RendererContextStatus::Initialized && tries < maxTries )
         {
-            result = RendererContext::Create( rendererSpec );
+            result = RendererContextType::Create( rendererSpec );
             tries++;
         }
 
@@ -83,7 +93,8 @@ namespace FikoEngine
         else { return ResultValueType{ RendererStatus::Fail }; }
     }
 
-    ResultValueType<RendererStatus> Renderer::Create( RendererSpec& rendererSpec )
+    template <typename RendererContextType>
+    ResultValueType<RendererStatus> Renderer<RendererContextType>::Create( RendererSpec& rendererSpec )
     {
         if ( nullptr == Renderer::GetRenderer() )
         {
@@ -93,15 +104,16 @@ namespace FikoEngine
         return ResultValueType{ RendererStatus::Fail };
     }
 
-    ResultValueType<RendererStatus> Renderer::Destroy()
+    template <typename RendererContextType>
+    ResultValueType<RendererStatus> Renderer<RendererContextType>::DeInit()
     {
         if ( nullptr != Renderer::GetRenderer() )
         {
-            auto result = RendererContext::Destroy();
+            auto result = RendererContextType::Destroy();
             uint32_t tries = 0, maxTries = 3;
             while ( result != RendererContextStatus::Destroyed && tries < maxTries )
             {
-                result = RendererContext::Destroy();
+                result = RendererContextType::Destroy();
                 tries++;
             }
             if ( result == RendererContextStatus::Destroyed )
@@ -115,7 +127,24 @@ namespace FikoEngine
         return ResultValueType{ RendererStatus::Fail };
     }
 
-    RendererSpec Renderer::GetRendererSpec() { return Renderer::s_Renderer->m_RendererSpec; }
+    template <typename RendererContextType>
+    ResultValueType<RendererStatus> Renderer<RendererContextType>::Destroy()
+    {
+        if ( nullptr != Renderer::GetRenderer() )
+        {
+            return Renderer::GetRenderer()->DeInit();
+        }
+        return ResultValueType{ RendererStatus::Fail };
+    }
+    template <typename RendererContextType>
+    RendererSpec Renderer<RendererContextType>::GetRendererSpec()
+    {
+        return Renderer::s_Renderer->m_RendererSpec;
+    }
 
-    Renderer* Renderer::GetRenderer() { return Renderer::s_Renderer; }
+    template <typename RendererContextType>
+    Renderer<RendererContextType>* Renderer<RendererContextType>::GetRenderer()
+    {
+        return Renderer::s_Renderer;
+    }
 }// namespace FikoEngine

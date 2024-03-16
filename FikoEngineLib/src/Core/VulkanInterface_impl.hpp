@@ -57,14 +57,15 @@ namespace FikoEngine
     ResultValue<vk::Result, vk::CommandPool> vkInterface::CreateCommandPool( vk::Device device,
                                                                              uint32_t graphicsQueueFamilyIndex )
     {
-        if constexpr ( !s_EnableTest )
-        {
-            auto res = device.createCommandPool(
-                    vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
-            return ResultValue<vk::Result, vk::CommandPool>( res.result, res.value );
-        }
-
+#if FIKO_ENGINE_VK_INTERFACE_ENABLE_TESTING == 1
+        auto res = device.createCommandPool(
+                vk::CommandPoolCreateInfo( vk::CommandPoolCreateFlags(), graphicsQueueFamilyIndex ) );
+        return ResultValue<vk::Result, vk::CommandPool>( res.result, res.value );
+#else
         return s_MockPtr->_CreateCommandPool( device, graphicsQueueFamilyIndex );
+#endif
+
+
     }
 
     void vkInterface::DestroyCommandPool( vk::Device device, vk::CommandPool commandPool )

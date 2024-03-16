@@ -40,6 +40,7 @@
 Includes
 ***********************************************************************************************************************/
 #include "RendererSpec.hpp"
+#include <Renderer/RendererContext.hpp>
 #include <Core/Result.hpp>
 #include <filesystem>
 
@@ -59,6 +60,7 @@ namespace FikoEngine
         Destroyed
     };
 
+    template<typename RendererContextType = FikoEngine::RendererContext>
     class Renderer
     {
     public:
@@ -68,6 +70,7 @@ namespace FikoEngine
 
     public:
         ResultValueType<RendererStatus> Init( RendererSpec& RendererSpec );
+        ResultValueType<RendererStatus> DeInit();
 
     public:
         static ResultValueType<RendererStatus> Create( RendererSpec& rendererSpec );
@@ -85,3 +88,5 @@ namespace FikoEngine
         RendererSpec m_RendererSpec;
     };
 }// namespace FikoEngine
+
+#include "Renderer_impl.hpp"

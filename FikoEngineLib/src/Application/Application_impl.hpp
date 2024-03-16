@@ -71,8 +71,8 @@ namespace FikoEngine
 
         while ( !Application::Get()->m_StoppedFlag )
         {
-            auto layersStatus = LayerStack::GetLayers();
-            for ( auto layer: layersStatus.returnValue )
+            auto& layersStatus = *LayerStack::GetLayers().value;
+            for ( auto& layer: layersStatus )
             {
                 layer->OnUpdate();
                 Application::Get()->m_StoppedFlag = true;
@@ -94,7 +94,7 @@ namespace FikoEngine
             rendererSpec.WorkingDirectory = Application::GetSpec().WorkingDirectory;
             rendererSpec.width = Application::GetSpec().StartupWidth;
             rendererSpec.height = Application::GetSpec().StartupHeight;
-            Renderer::Create( rendererSpec );
+            Renderer<>::Create( rendererSpec );
 
             LayerStack::Init();
         }
@@ -107,7 +107,7 @@ namespace FikoEngine
         {
             LayerStack::Destroy();
 
-            Renderer::Destroy();
+            Renderer<>::Destroy();
 
             delete Application::s_Application;
             LOG_INFO( "Application destroyed!" );

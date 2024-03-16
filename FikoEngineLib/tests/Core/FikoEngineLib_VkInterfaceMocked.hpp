@@ -5,12 +5,6 @@
 #include <gtest/gtest.h>
 #include <vulkan/vulkan.hpp>
 
-namespace FikoEngine::tests
-{
-
-
-}// namespace FikoEngine::tests
-
 class MockedVkInterface: public FikoEngine::vkInterface
 {
 public:
