@@ -162,7 +162,7 @@ namespace FikoEngine
             return ResultValue<BufferStatus, vk::DeviceMemory>{ typeIndex.status };
         }
 
-        vk::MemoryAllocateInfo memoryAllocateInfo( memoryRequirements.size, typeIndex );
+        vk::MemoryAllocateInfo memoryAllocateInfo(memoryRequirements.size, typeIndex.value);
         auto memory = vkInterface::AllocateMemory( device, memoryAllocateInfo );
 
         if ( vk::Result::eSuccess != memory )
@@ -171,7 +171,7 @@ namespace FikoEngine
             return ResultValue<BufferStatus, vk::DeviceMemory>{ BufferStatus::CanNotAllocateMemory };
         }
 
-        return ResultValue<BufferStatus, vk::DeviceMemory>{ BufferStatus::Success, memory };
+        return ResultValue<BufferStatus, vk::DeviceMemory>{ BufferStatus::Success, memory.value };
     }
 
     const size_t MemoryBuffer::GetBufferSize() const { return m_BufferSize; }

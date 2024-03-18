@@ -57,6 +57,10 @@ namespace FikoEngine
 
         explicit ResultValue( T status ) : status( status ) {}
 
+        explicit ResultValue( E& value ) : value( value ) {}
+
+        explicit ResultValue( E&& value ) : value( value ) {}
+
         ResultValue( T status, E& value ) : status( status ), value( value ) {}
 
         ResultValue( T status, E&& value ) : status( status ), value( std::move( value ) ) {}
@@ -67,13 +71,27 @@ namespace FikoEngine
             value = res.value;
         }
 
-        operator E() { return value; }
+        template <std::enable_if<std::is_same<T, E>::value, bool> = true>
+        operator E()
+        {
+            return value;
+        }
 
-        operator const E() const { return value; }
+        template <std::enable_if<std::is_same<T, E>::value, bool> = true>
+        operator const E() const
+        {
+            return value;
+        }
 
-        operator T() { return status; }
+        operator T()
+        {
+            return status;
+        }
 
-        operator const T() const { return status; }
+        operator const T() const
+        {
+            return status;
+        }
     };
 
     template <typename StatusType = vk::Result>

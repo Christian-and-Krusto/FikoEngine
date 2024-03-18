@@ -97,6 +97,9 @@ namespace FikoEngine
         operator vk::CommandPool() const { return m_VkCommandPool; }
 
     private:
+        void Destroy();
+
+    private:
         vk::CommandPool m_VkCommandPool;
         std::vector<ResultValue<CommandBufferState, vk::CommandBuffer>> m_VkCommandBuffers;
         vk::Device m_VkDevice;
