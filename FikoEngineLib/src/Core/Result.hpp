@@ -71,18 +71,6 @@ namespace FikoEngine
             value = res.value;
         }
 
-        template <std::enable_if<std::is_same<T, E>::value, bool> = true>
-        operator E()
-        {
-            return value;
-        }
-
-        template <std::enable_if<std::is_same<T, E>::value, bool> = true>
-        operator const E() const
-        {
-            return value;
-        }
-
         operator T()
         {
             return status;

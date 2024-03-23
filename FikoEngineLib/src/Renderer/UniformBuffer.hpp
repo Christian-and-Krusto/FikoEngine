@@ -39,10 +39,11 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include <Core/Result.hpp>
 #include <Renderer/MemoryBuffer.hpp>
 
+#include <Core/Result.hpp>
 #include <vulkan/vulkan.hpp>
+
 
 /***********************************************************************************************************************
 Enum Class definitions
@@ -72,10 +73,10 @@ namespace FikoEngine
         ~UniformBuffer() = default;
 
     public:
-        ResultValueType<BufferStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, uint32_t size,
+        FikoEngine::ResultValueType<BufferStatus> Init( vk::PhysicalDevice physicalDevice, vk::Device device, uint32_t size,
                                           uint8_t* data );
-        ResultValue<BufferStatus, vk::Buffer> GetBufferHandle();
-        ResultValueType<BufferStatus> Destroy( vk::Device device );
+        FikoEngine::ResultValue<BufferStatus, vk::Buffer> GetBufferHandle();
+        FikoEngine::ResultValueType<BufferStatus> Destroy( vk::Device device );
 
         const size_t GetSize() const;
 

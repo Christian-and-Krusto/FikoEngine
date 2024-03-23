@@ -40,11 +40,11 @@
 Includes
 ***********************************************************************************************************************/
 #include "CommandPool.hpp"
-#include "VulkanSpec.hpp"
 #include "Image.hpp"
-
+#include "VulkanSpec.hpp"
 #include <Core/Result.hpp>
-#include <vulkan/vulkan.hpp>
+#include <Core/VulkanInterface.hpp>
+
 
 /***********************************************************************************************************************
 Enum Class definitions

@@ -45,9 +45,6 @@ Includes
 #include <Core/Log.hpp>
 
 #include <shaderc/shaderc.hpp>
-#include <vulkan/vulkan.hpp>
-#include <vulkan/vulkan_to_string.hpp>
-
 
 #include <algorithm>
 #include <ranges>
